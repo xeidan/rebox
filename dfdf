@@ -1,0 +1,893 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Menu,
+  X,
+  Search,
+  User,
+  ShoppingBag,
+  ArrowRight,
+  ArrowLeftRight,
+  ShieldCheck,
+  BatteryCharging,
+  Smartphone,
+  ChevronRight,
+} from "lucide-react";
+
+export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const categories = [
+    "iPhone",
+    "Samsung Galaxy",
+    "Google Pixel",
+    "Android Phones",
+    "MacBooks",
+    "Accessories",
+  ];
+
+  const featuredDevices = [
+    {
+      name: "iPhone 15 Pro Max",
+      price: "₦1.85M",
+      score: 94,
+      battery: "98%",
+    },
+    {
+      name: "Samsung S24 Ultra",
+      price: "₦1.42M",
+      score: 91,
+      battery: "96%",
+    },
+    {
+      name: "Google Pixel 8 Pro",
+      price: "₦920k",
+      score: 89,
+      battery: "93%",
+    },
+  ];
+
+  return (
+    <main className="min-h-screen bg-[#f6f4ff] text-black overflow-x-hidden">
+
+      {/* ====================================== */}
+      {/* NAVIGATION */}
+      {/* ====================================== */}
+
+      <nav className="sticky top-0 z-50 bg-white/85 backdrop-blur-2xl border-b border-gray-100">
+
+        {/* MAIN NAV */}
+        <div className="max-w-7xl mx-auto px-6">
+
+          <div className="h-24 flex items-center justify-between gap-6">
+
+            {/* LEFT */}
+            <div className="flex items-center gap-4 shrink-0">
+
+              {/* HAMBURGER - MOBILE ONLY */}
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="lg:hidden relative w-12 h-12 rounded-2xl border border-gray-200 bg-white flex items-center justify-center shadow-sm hover:shadow-lg transition-all duration-300"
+              >
+
+                <div className="relative w-6 h-6">
+
+                  <Menu
+                    size={22}
+                    className={`absolute inset-0 transition-all duration-300 ${
+                      menuOpen
+                        ? "opacity-0 rotate-90 scale-75"
+                        : "opacity-100 rotate-0 scale-100"
+                    }`}
+                  />
+
+                  <X
+                    size={22}
+                    className={`absolute inset-0 transition-all duration-300 ${
+                      menuOpen
+                        ? "opacity-100 rotate-0 scale-100"
+                        : "opacity-0 -rotate-90 scale-75"
+                    }`}
+                  />
+
+                </div>
+
+              </button>
+
+              {/* LOGO */}
+              <div className="flex items-center gap-4 cursor-pointer group">
+
+                <div className="relative">
+
+                  <div className="absolute inset-0 bg-violet-500 blur-2xl opacity-20 group-hover:opacity-40 transition-all duration-500 rounded-2xl" />
+
+                  <img
+                    src="/rebox-logo.png"
+                    alt="Rebox"
+                    className="relative h-10 w-auto object-contain group-hover:scale-[1.02] transition-all duration-500"
+                  />
+                   <p className="text-[11px] text-gray-500 font-medium mt-1 tracking-[0.18em] uppercase">
+                    Verified Marketplace
+                  </p>
+
+                </div>
+
+
+              </div>
+
+            </div>
+
+            {/* SEARCH */}
+            <div className="hidden md:flex flex-1 max-w-2xl">
+
+              <div className="group w-full h-16 rounded-3xl bg-[#f5f5f7]/90 border border-transparent focus-within:border-violet-300 focus-within:bg-white focus-within:shadow-[0_10px_40px_rgba(139,92,246,0.18)] transition-all duration-300 px-6 flex items-center">
+
+                <Search
+                  size={22}
+                  className="text-gray-400 group-focus-within:text-violet-600 transition-all duration-300"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Search iPhone, Samsung, MacBook..."
+                  className="ml-4 bg-transparent outline-none w-full text-[15px] placeholder:text-gray-400 font-medium"
+                />
+
+             
+
+              </div>
+
+            </div>
+
+            {/* RIGHT */}
+            <div className="flex items-center gap-3">
+
+              {/* TRADE IN */}
+              <button className="hidden lg:flex h-14 px-6 rounded-2xl border border-gray-200 bg-white items-center gap-3 font-semibold hover:shadow-xl hover:-translate-y-[1px] hover:border-violet-200 transition-all duration-300 group">
+
+                <div className="w-8 h-8 rounded-xl bg-violet-100 flex items-center justify-center group-hover:bg-violet-600 transition-all duration-300">
+
+                  <ArrowLeftRight
+                    size={16}
+                    className="text-violet-700 group-hover:text-white transition-all duration-300"
+                  />
+
+                </div>
+
+                <span>
+                  Trade-in
+                </span>
+
+              </button>
+
+              {/* USER */}
+              <button className="w-14 h-14 rounded-2xl border border-gray-200 bg-white flex items-center justify-center hover:shadow-xl hover:-translate-y-[1px] hover:border-violet-200 transition-all duration-300 group">
+
+                <User
+                  size={20}
+                  className="group-hover:text-violet-700 transition-all duration-300"
+                />
+
+              </button>
+
+              {/* CART */}
+              <button className="relative w-14 h-14 rounded-2xl border border-gray-200 bg-white flex items-center justify-center hover:shadow-xl hover:-translate-y-[1px] hover:border-violet-200 transition-all duration-300 group">
+
+                <ShoppingBag
+                  size={20}
+                  className="group-hover:text-violet-700 transition-all duration-300"
+                />
+
+
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* DESKTOP CATEGORY BAR */}
+        <div className="hidden lg:block border-t border-gray-100 bg-white">
+
+          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-10 overflow-x-auto scrollbar-hide">
+
+            {[
+              "Rebox Verify",
+              "Smartphones",
+              "Laptops",
+              "Tablets",
+              "Game Consoles",
+              "Smartwatches",
+              "Audio",
+            ].map((item, index) => (
+              <button
+                key={index}
+                className={`relative whitespace-nowrap text-[15px] font-semibold transition-all duration-300 ${
+                  index === 0
+                    ? "text-violet-700"
+                    : "text-gray-600 hover:text-violet-700"
+                }`}
+              >
+
+                {item}
+
+                {index === 0 && (
+                  <div className="absolute left-0 -bottom-[19px] w-full h-[3px] rounded-full bg-violet-700" />
+                )}
+
+              </button>
+            ))}
+
+          </div>
+
+        </div>
+
+        {/* MOBILE MENU */}
+        <div
+          className={`lg:hidden overflow-hidden transition-all duration-500 ${
+            menuOpen
+              ? "max-h-[500px] opacity-100"
+              : "max-h-0 opacity-0"
+          }`}
+        >
+
+          <div className="px-6 pb-8 border-t border-gray-100 bg-white">
+
+            {/* MOBILE SEARCH */}
+            <div className="mt-6 h-14 bg-[#f5f5f7] rounded-2xl px-5 flex items-center">
+
+              <Search
+                size={20}
+                className="text-gray-400"
+              />
+
+              <input
+                type="text"
+                placeholder="Search devices..."
+                className="ml-3 bg-transparent outline-none w-full text-sm"
+              />
+
+            </div>
+
+            {/* MOBILE LINKS */}
+            <div className="mt-8 flex flex-col gap-3">
+
+              {[
+                "Rebox Verify",
+              "Smartphones",
+              "Laptops",
+              "Tablets",
+              "Game Consoles",
+              "Smartwatches",
+              "Audio",
+              ].map((item, index) => (
+                <button
+                  key={index}
+                  className="h-14 px-5 rounded-2xl bg-[#f8f7ff] hover:bg-violet-50 text-left font-semibold transition-all duration-300"
+                >
+                  {item}
+                </button>
+              ))}
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </nav>
+
+      {/* ====================================== */}
+      {/* HERO SECTION */}
+      {/* ====================================== */}
+
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#f6f4ff] to-white px-6 pt-16 lg:py-16">
+
+        {/* BACKGROUND ORBS */}
+        <div className="absolute top-[-120px] right-[-120px] w-[420px] h-[420px] bg-violet-300/20 blur-3xl rounded-full" />
+
+        <div className="absolute bottom-[-180px] left-[-120px] w-[380px] h-[380px] bg-fuchsia-200/20 blur-3xl rounded-full" />
+
+        <div className="max-w-7xl mx-auto relative z-10 grid lg:grid-cols-2 gap-20 items-center">
+
+          {/* ====================================== */}
+          {/* LEFT */}
+          {/* ====================================== */}
+
+          <div>
+
+            {/* BADGE */}
+            <div className="inline-flex items-center gap-3 bg-white border border-violet-100 shadow-sm rounded-full px-5 py-3 text-sm font-semibold text-violet-700">
+
+              <ShieldCheck size={17} />
+
+              Powered by Rebox Verify
+
+            </div>
+
+            {/* HEADING */}
+            <h1 className="mt-10 text-[4.2rem] leading-[0.92] tracking-[-0.06em] font-black max-w-3xl">
+
+              Verified Devices.
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-700 via-purple-700 to-fuchsia-600">
+                Zero Guesswork.
+              </span>
+
+            </h1>
+
+            {/* SUBTEXT */}
+            <p className="mt-8 text-[16px] leading-relaxed text-gray-600 max-w-2xl">
+
+              Rebox helps you buy and sell refurbished devices with confidence through transparent grading, battery health verification, IMEI checks, and trusted pricing.
+
+            </p>
+
+            {/* CTA */}
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+
+              {/* PRIMARY */}
+              <button className="h-14 px-8 rounded-xl bg-gradient-to-r from-violet-700 to-purple-700 text-white font-semibold shadow-xl shadow-violet-500/20 hover:scale-[1.02] transition-all duration-300">
+
+                Shop Devices
+
+              </button>
+
+              {/* SECONDARY */}
+              <button className="h-14 px-8 rounded-xl border border-gray-200 bg-white font-semibold hover:bg-gray-50 transition-all duration-300">
+
+                Sell Your Device
+
+              </button>
+
+            </div>
+
+          {/* TRUST STATS */}
+          <div className="mt-16 flex flex-wrap items-center gap-6">
+
+            {/* ITEM */}
+            <div className="flex items-center gap-4">
+
+              <div className="w-14 h-14 rounded-2xl bg-violet-100 flex items-center justify-center">
+
+                <ShieldCheck
+                  size={24}
+                  className="text-violet-700"
+                />
+
+              </div>
+
+              <div>
+
+                <h3 className="text-xl font-black tracking-tight leading-none">
+                  10k+
+                </h3>
+
+                <p className="mt-2 text-[12px] text-gray-500 font-medium">
+                  Verified Devices
+                </p>
+
+              </div>
+
+            </div>
+
+            {/* DIVIDER */}
+            <div className="hidden md:block w-px h-14 bg-gray-200" />
+
+            {/* ITEM */}
+            <div className="flex items-center gap-4">
+
+              <div className="w-14 h-14 rounded-2xl bg-violet-100 flex items-center justify-center">
+
+                <Search
+                  size={24}
+                  className="text-violet-700"
+                />
+
+              </div>
+
+              <div>
+
+                <h3 className="text-xl font-black tracking-tight leading-none">
+                  92-Point
+                </h3>
+
+                <p className="mt-2 text-[12px] text-gray-500 font-medium">
+                  Inspection Process
+                </p>
+
+              </div>
+
+            </div>
+
+            {/* DIVIDER */}
+            <div className="hidden md:block w-px h-14 bg-gray-200" />
+
+            {/* ITEM */}
+            <div className="flex items-center gap-4">
+
+              <div className="w-14 h-14 rounded-2xl bg-violet-100 flex items-center justify-center">
+
+                <Smartphone
+                  size={24}
+                  className="text-violet-700"
+                />
+
+              </div>
+
+              <div>
+
+                <h3 className="text-xl font-black tracking-tight leading-none">
+                  100%
+                </h3>
+
+                <p className="mt-2 text-[12px] text-gray-500 font-medium">
+                  IMEI Checked
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          </div>
+
+          {/* ====================================== */}
+          {/* RIGHT */}
+          {/* ====================================== */}
+
+          <div className="relative hidden lg:flex items-center justify-center">
+
+            {/* BACK GLOW */}
+            <div className="absolute w-[520px] h-[520px] rounded-full bg-violet-400/20 blur-3xl" />
+
+            {/* BOTTOM GLOW */}
+            <div className="absolute bottom-10 w-[420px] h-[120px] bg-fuchsia-500/20 blur-3xl rounded-full" />
+
+            {/* IMAGE */}
+            <img
+              src="/hero-img.png"
+              alt="Hero Image"
+              className="relative z-10 w-full max-w-[760px] object-contain drop-shadow-[0_40px_80px_rgba(124,58,237,0.28)]"
+            />
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      {/* ====================================== */}
+      {/* MARKETPLACE SECTION */}
+      {/* ====================================== */}
+      <section className="relative px-6 py-20 overflow-hidden bg-white">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_65%)] from-violet-100/40 via-transparent to-transparent opacity-70" />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* HEADER */}
+          <div className="text-center lg:text-left">
+            <p className="text-violet-600 font-bold text-[13px] uppercase tracking-[0.2em]">Marketplace</p>
+            <h2 className="mt-4 text-4xl lg:text-5xl font-black tracking-tight text-gray-900">Shop Verified Categories</h2>
+            <p className="mt-5 text-lg text-gray-500 max-w-2xl leading-relaxed">
+              Explore devices verified through Rebox Verify with transparent grading and battery health certification.
+            </p>
+          </div>
+
+          {/* CATEGORY GRID */}
+          <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            {[
+              { name: "Great Deals", img: "/great-deals.png" },
+              { name: "iPhone", img: "/iphone-group.png" },
+              { name: "MacBook", img: "/macbook-category.png" },
+              { name: "iPad", img: "/ipad-category.png" },
+              { name: "Gaming", img: "/gaming-category.png" },
+              { name: "Android", img: "/modular-card_android.png" },
+              { name: "Windows", img: "/windows-category.png" },
+              { name: "AirPods", img: "/airpods-category.png" },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="group relative flex flex-col items-center justify-between h-[240px] lg:h-[260px] rounded-[24px] p-[1px] bg-gradient-to-br from-violet-300/50 via-fuchsia-200/30 to-violet-300/50 transition-all duration-500 hover:shadow-2xl hover:shadow-violet-200 cursor-pointer"
+              >
+                {/* INNER CARD CONTENT */}
+                <div className="relative flex flex-col items-center w-full h-full rounded-[23px] bg-white p-5 overflow-hidden">
+                  
+                  {/* IMAGE WRAPPER - Forces consistent sizing */}
+                  <div className="flex-1 flex items-center justify-center w-full min-h-[140px] lg:min-h-[170px]">
+                    <img
+                      src={item.img}
+                      alt={item.name}
+                      className="w-auto h-full max-h-[140px] lg:max-h-[170px] object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
+                    />
+                  </div>
+
+                  {/* TEXT */}
+                  <div className="mt-2 pb-1">
+                    <h3 className="text-lg lg:text-xl font-bold tracking-tight text-gray-900 text-center">
+                      {item.name}
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+
+     {/* ====================================== */}
+{/* REBOX VERIFY SECTION */}
+{/* ====================================== */}
+
+<section className="relative px-6 py-32 overflow-hidden bg-[#fcfbff]">
+
+  {/* AMBIENT BACKGROUND */}
+  <div className="absolute inset-0 overflow-hidden">
+
+    <div className="absolute top-[-180px] left-[-120px] w-[420px] h-[420px] bg-violet-200/20 blur-3xl rounded-full" />
+
+    <div className="absolute bottom-[-220px] right-[-120px] w-[420px] h-[420px] bg-fuchsia-200/10 blur-3xl rounded-full" />
+
+  </div>
+
+  <div className="max-w-7xl mx-auto relative z-10">
+
+    {/* ====================================== */}
+    {/* HEADER */}
+    {/* ====================================== */}
+
+    <div className="max-w-4xl">
+
+      <div className="inline-flex items-center gap-3 bg-white border border-violet-100 shadow-sm rounded-full px-5 py-3">
+
+        <div className="w-2.5 h-2.5 rounded-full bg-violet-600 animate-pulse" />
+
+        <p className="text-[13px] font-bold uppercase tracking-[0.22em] text-violet-700">
+
+          Rebox Verify
+
+        </p>
+
+      </div>
+
+      <h2 className="my-8 text-[3.8rem] lg:text-[3.8rem] leading-[0.9] tracking-[-0.07em] font-black text-black">
+
+        Built Around
+        <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-700 via-purple-700 to-fuchsia-600">
+
+          Trust & Transparency.
+
+        </span>
+
+      </h2>
+
+      <p className="mt-8 text-[19px] leading-relaxed text-gray-500 max-w-2xl">
+
+        Every device on Rebox goes through a professional verification process covering battery health, authenticity, cosmetic condition, and functionality before it reaches buyers.
+
+      </p>
+
+    </div>
+
+    {/* ====================================== */}
+    {/* VERIFY GRID */}
+    {/* ====================================== */}
+
+    <div className="mt-20 grid lg:grid-cols-3 gap-7">
+
+      {[
+        {
+          icon: <BatteryCharging size={30} className="text-violet-700" />,
+          title: "Battery Health Verified",
+          desc: "Every device is tested to ensure strong battery performance and long-term reliability.",
+          stat: "85%+"
+        },
+
+        {
+          icon: <ShieldCheck size={30} className="text-violet-700" />,
+          title: "IMEI & Authenticity Check",
+          desc: "We verify device identity, blacklist status, and authenticity before approval.",
+          stat: "100%"
+        },
+
+        {
+          icon: <Smartphone size={30} className="text-violet-700" />,
+          title: "92-Point Inspection",
+          desc: "Screens, cameras, speakers, ports, and buttons are professionally inspected.",
+          stat: "92"
+        }
+
+      ].map((feature, idx) => (
+
+        <div
+          key={idx}
+          className="group relative overflow-hidden rounded-[34px] border border-violet-100 bg-white p-9 hover:border-violet-300 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_80px_rgba(139,92,246,0.12)]"
+        >
+
+          {/* CARD GLOW */}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700">
+
+            <div className="absolute top-[-60px] right-[-40px] w-[180px] h-[180px] bg-violet-300/15 blur-3xl rounded-full" />
+
+            <div className="absolute bottom-[-100px] left-[-60px] w-[180px] h-[180px] bg-fuchsia-300/10 blur-3xl rounded-full" />
+
+          </div>
+
+          <div className="relative z-10">
+
+            {/* TOP */}
+            <div className="flex items-start justify-between">
+
+              <div className="w-16 h-16 rounded-[22px] bg-gradient-to-b from-violet-100 to-violet-50 border border-violet-200 flex items-center justify-center">
+
+                {feature.icon}
+
+              </div>
+
+              <div className="text-[3rem] leading-none tracking-[-0.08em] font-black text-violet-100 group-hover:text-violet-200 transition-all duration-500">
+
+                {feature.stat}
+
+              </div>
+
+            </div>
+
+            {/* CONTENT */}
+            <div className="mt-10">
+
+              <h3 className="text-[1.9rem] leading-[1] tracking-[-0.05em] font-black text-black max-w-[280px]">
+
+                {feature.title}
+
+              </h3>
+
+              <p className="mt-5 text-[16px] leading-relaxed text-gray-500">
+
+                {feature.desc}
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      ))}
+
+    </div>
+
+  </div>
+
+</section>
+
+{/* ====================================== */}
+      {/* FINAL CTA */}
+      {/* ====================================== */}
+      <section className="px-6 pb-24">
+        <div className="max-w-7xl mx-auto rounded-[48px] bg-gray-900 px-10 py-20 lg:py-32 relative overflow-hidden text-center">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-violet-600/20 blur-[100px]" />
+          <div className="relative z-10">
+            <h2 className="text-4xl lg:text-7xl font-black tracking-tighter text-white">Buy Smarter. Sell With Confidence.</h2>
+            <div className="mt-12 flex flex-wrap justify-center gap-4">
+              <button className="h-16 px-10 rounded-2xl bg-white text-gray-900 font-bold text-lg hover:bg-violet-50 transition-all">Start Shopping</button>
+              <button className="h-16 px-10 rounded-2xl bg-white/10 border border-white/20 text-white font-bold text-lg hover:bg-white/20 transition-all">Explore Verify</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import Image from "next/image";
+
+type Product = {
+  id: number;
+  title: string;
+  brand: string;
+  price: number;
+  image: string;
+  condition: string;
+  battery_health: number;
+  storage: string;
+};
+
+export default function ProductCard({
+  product,
+}: {
+  product: Product;
+}) {
+  const formattedPrice = Math.floor(product.price).toLocaleString();
+
+  return (
+    <div className="group w-full cursor-pointer rounded-2xl border border-[#ebebeb] bg-white p-4 transition-all duration-200 hover:shadow-sm">
+
+      {/* MOBILE LAYOUT */}
+      <div className="flex items-start gap-4 sm:hidden">
+
+        {/* IMAGE */}
+        <div className="relative h-[120px] w-[120px] shrink-0 overflow-hidden rounded-xl bg-white">
+
+          <Image
+            src={product.image}
+            alt={product.title}
+            fill
+            priority
+            className="object-contain p-2"
+          />
+
+        </div>
+
+        {/* INFO */}
+        <div className="flex min-w-0 flex-1 flex-col">
+
+          {/* COLOR DOTS */}
+          <div className="flex items-center gap-1">
+
+            <div className="h-3 w-3 rounded-full bg-black" />
+            <div className="h-3 w-3 rounded-full bg-zinc-500" />
+            <div className="h-3 w-3 rounded-full bg-stone-300" />
+
+            <span className="ml-1 text-[12px] text-gray-500">
+              +1
+            </span>
+
+          </div>
+
+          {/* TITLE */}
+          <h3 className="mt-3 line-clamp-2 text-[18px] font-semibold tracking-[-0.03em] text-[#1d1d1f]">
+            {product.title}
+          </h3>
+
+          {/* RATING */}
+          <div className="mt-2 flex items-center gap-1">
+
+            <div className="text-[11px] tracking-tight text-black">
+              ★★★★★
+            </div>
+
+            <span className="text-[12px] font-medium text-[#1d1d1f]">
+              4.4/5
+            </span>
+
+            <span className="text-[12px] text-gray-500">
+              (17,445)
+            </span>
+
+          </div>
+
+          {/* PRICE */}
+          <p className="mt-3 text-[12px] text-gray-500">
+            Starting at
+          </p>
+
+          <div className="mt-1 flex items-start leading-none">
+
+            <span className="text-[24px] font-bold tracking-[-0.05em] text-[#1d1d1f]">
+              ₦{formattedPrice}
+            </span>
+
+            <span className="pt-[3px] text-[12px] font-bold text-[#1d1d1f]">
+              .00
+            </span>
+
+          </div>
+
+          <p className="mt-1 text-[13px] text-gray-500 line-through">
+            ₦
+            {(product.price * 1.35).toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            })}
+            .00 new
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* DESKTOP + TABLET LAYOUT */}
+      <div className="hidden sm:block">
+
+        {/* IMAGE */}
+        <div className="relative flex h-[180px] items-center justify-center overflow-hidden">
+
+          <Image
+            src={product.image}
+            alt={product.title}
+            width={160}
+            height={160}
+            priority
+            className="object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+          />
+
+        </div>
+
+        {/* COLOR DOTS */}
+        <div className="mt-2 flex items-center gap-1">
+
+          <div className="h-3 w-3 rounded-full bg-black" />
+          <div className="h-3 w-3 rounded-full bg-zinc-500" />
+          <div className="h-3 w-3 rounded-full bg-stone-300" />
+
+          <span className="ml-1 text-[12px] text-gray-500">
+            +1
+          </span>
+
+        </div>
+
+        {/* TITLE */}
+        <h3 className="mt-4 line-clamp-2 text-[15px] font-semibold leading-[1.3] tracking-[-0.03em] text-[#1d1d1f]">
+          {product.title}
+        </h3>
+
+        {/* RATING */}
+        <div className="mt-2 flex items-center gap-1">
+
+          <div className="text-[11px] tracking-tight text-black">
+            ★★★★★
+          </div>
+
+          <span className="text-[12px] font-medium text-[#1d1d1f]">
+            4.4/5
+          </span>
+
+          <span className="text-[12px] text-gray-500">
+            (17,445)
+          </span>
+
+        </div>
+
+        {/* PRICE */}
+        <p className="mt-3 text-[12px] text-gray-500">
+          Starting at
+        </p>
+
+        <div className="mt-1 flex items-start leading-none">
+
+          <span className="text-[24px] font-bold tracking-[-0.05em] text-[#1d1d1f]">
+            ₦{formattedPrice}
+          </span>
+
+          <span className="pt-[4px] text-[12px] font-bold text-[#1d1d1f]">
+            .00
+          </span>
+
+        </div>
+
+        <p className="mt-1 text-[13px] text-gray-500 line-through">
+          ₦
+          {(product.price * 1.35).toLocaleString(undefined, {
+            maximumFractionDigits: 0,
+          })}
+          .00 new
+        </p>
+
+      </div>
+
+    </div>
+  );
+}
