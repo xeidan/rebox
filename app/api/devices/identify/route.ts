@@ -127,9 +127,8 @@ export async function POST(request: NextRequest) {
     }
 
     console.error(
-      "Device identification failed:",
-      error instanceof Error ? error.message : "Unknown error"
-    );
+  "Device identification failed. Request could not be completed."
+);
 
     return NextResponse.json(
       { error: "Device identification is temporarily unavailable." },

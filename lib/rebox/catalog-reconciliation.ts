@@ -29,7 +29,7 @@ export async function reconcileDevice(
     .limit(2);
 
   if (error) {
-    console.error("Catalogue reconciliation failed:", error.message);
+    console.error("Catalogue reconciliation failed.");
     throw new Error("Catalogue reconciliation failed");
   }
 

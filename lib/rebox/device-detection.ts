@@ -44,7 +44,7 @@ export async function detectDevice(input: DeviceDetectionInput) {
   const { data, error } = await query.maybeSingle();
 
   if (error) {
-    console.error("Device catalog lookup failed:", error.message);
+    console.error("Device catalog lookup failed.");
     throw new Error("Device detection lookup failed");
   }
 
