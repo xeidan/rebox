@@ -1,14 +1,42 @@
 import Image from "next/image";
 
+type ProductVariant = {
+  id: number;
+  product_id: number;
+  colour: string;
+  storage: string;
+  battery_health: number;
+  price: number;
+  stock: number;
+  image: string;
+  condition: string;
+  inspection_score: number;
+  colour_hex?: string;
+};
+
 type Product = {
   id: number;
   title: string;
   brand: string;
-  price: number;
-  image: string;
-  condition: string;
-  battery_health: number;
-  storage: string;
+  rating?: number;
+  review_count?: number;
+  original_price?: number | null;
+  product_variants: ProductVariant[];
+};
+
+const colourMap: Record<string, string> = {
+  Black: "#111111",
+  "Black Titanium": "#1f1f1f",
+  White: "#f5f5f5",
+  "White Titanium": "#e8e8e8",
+  Silver: "#cfcfcf",
+  Gold: "#d4b06a",
+  Blue: "#6f8db5",
+  "Blue Titanium": "#6f8db5",
+  Green: "#c7d7c1",
+  Purple: "#b9a5d6",
+  Pink: "#d9b8b1",
+  "Natural Titanium": "#d4cdc1",
 };
 
 export default function ProductCard({
@@ -16,173 +44,107 @@ export default function ProductCard({
 }: {
   product: Product;
 }) {
-  const formattedPrice = Math.floor(product.price).toLocaleString();
+  const defaultVariant =
+    product.product_variants?.find(
+      (variant) => variant.stock > 0
+    ) || product.product_variants?.[0];
+
+  if (!defaultVariant) {
+    return null;
+  }
+
+  const formattedPrice = Math.floor(
+    defaultVariant.price || 0
+  ).toLocaleString();
+
+  const stars = "★".repeat(
+    Math.floor(product.rating || 0)
+  );
+
+  const emptyStars = "☆".repeat(
+    5 - Math.floor(product.rating || 0)
+  );
+
+  const uniqueColours = [
+    ...new Set(
+      product.product_variants.map(
+        (variant) => variant.colour
+      )
+    ),
+  ];
 
   return (
-    <div className="group w-full cursor-pointer rounded-2xl border border-[#ebebeb] bg-white p-4 transition-all duration-200 hover:shadow-sm">
-
-      {/* MOBILE LAYOUT */}
-      <div className="flex items-start gap-4 sm:hidden">
-
-        {/* IMAGE */}
-        <div className="relative h-[120px] w-[120px] shrink-0 overflow-hidden rounded-xl bg-white">
-
-          <Image
-            src={product.image}
-            alt={product.title}
-            fill
-            priority
-            className="object-contain p-2"
-          />
-
-        </div>
-
-        {/* INFO */}
-        <div className="flex min-w-0 flex-1 flex-col">
-
-          {/* COLOR DOTS */}
-          <div className="flex items-center gap-1">
-
-            <div className="h-3 w-3 rounded-full bg-black" />
-            <div className="h-3 w-3 rounded-full bg-zinc-500" />
-            <div className="h-3 w-3 rounded-full bg-stone-300" />
-
-            <span className="ml-1 text-[12px] text-gray-500">
-              +1
-            </span>
-
-          </div>
-
-          {/* TITLE */}
-          <h3 className="mt-3 line-clamp-2 text-[18px] font-semibold tracking-[-0.03em] text-[#1d1d1f]">
-            {product.title}
-          </h3>
-
-          {/* RATING */}
-          <div className="mt-2 flex items-center gap-1">
-
-            <div className="text-[11px] tracking-tight text-black">
-              ★★★★★
-            </div>
-
-            <span className="text-[12px] font-medium text-[#1d1d1f]">
-              4.4/5
-            </span>
-
-            <span className="text-[12px] text-gray-500">
-              (17,445)
-            </span>
-
-          </div>
-
-          {/* PRICE */}
-          <p className="mt-3 text-[12px] text-gray-500">
-            Starting at
-          </p>
-
-          <div className="mt-1 flex items-start leading-none">
-
-            <span className="text-[24px] font-bold tracking-[-0.05em] text-[#1d1d1f]">
-              ₦{formattedPrice}
-            </span>
-
-            <span className="pt-[3px] text-[12px] font-bold text-[#1d1d1f]">
-              .00
-            </span>
-
-          </div>
-
-          <p className="mt-1 text-[13px] text-gray-500 line-through">
-            ₦
-            {(product.price * 1.35).toLocaleString(undefined, {
-              maximumFractionDigits: 0,
-            })}
-            .00 new
-          </p>
-
-        </div>
-
+    <div className="w-[280px] shrink-0 rounded-[28px] bg-white p-5">
+      {/* IMAGE */}
+      <div className="relative flex h-[190px] items-center justify-center overflow-hidden">
+        <Image
+          src={defaultVariant.image}
+          alt={product.title}
+          width={145}
+          height={145}
+          priority
+          className="object-contain"
+        />
       </div>
 
-      {/* DESKTOP + TABLET LAYOUT */}
-      <div className="hidden sm:block">
-
-        {/* IMAGE */}
-        <div className="relative flex h-[180px] items-center justify-center overflow-hidden">
-
-          <Image
-            src={product.image}
-            alt={product.title}
-            width={160}
-            height={160}
-            priority
-            className="object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+      {/* COLOURS */}
+      <div className="mt-4 flex justify-center gap-2">
+        {uniqueColours.slice(0, 4).map((colour) => (
+          <div
+            key={colour}
+            className="h-3 w-3 rounded-full border"
+            style={{
+              backgroundColor:
+                colourMap[colour] || "#cccccc",
+              borderColor:
+                colourMap[colour] || "#cccccc",
+            }}
+            title={colour}
           />
-
-        </div>
-
-        {/* COLOR DOTS */}
-        <div className="mt-2 flex items-center gap-1">
-
-          <div className="h-3 w-3 rounded-full bg-black" />
-          <div className="h-3 w-3 rounded-full bg-zinc-500" />
-          <div className="h-3 w-3 rounded-full bg-stone-300" />
-
-          <span className="ml-1 text-[12px] text-gray-500">
-            +1
-          </span>
-
-        </div>
-
-        {/* TITLE */}
-        <h3 className="mt-4 line-clamp-2 text-[15px] font-semibold leading-[1.3] tracking-[-0.03em] text-[#1d1d1f]">
-          {product.title}
-        </h3>
-
-        {/* RATING */}
-        <div className="mt-2 flex items-center gap-1">
-
-          <div className="text-[11px] tracking-tight text-black">
-            ★★★★★
-          </div>
-
-          <span className="text-[12px] font-medium text-[#1d1d1f]">
-            4.4/5
-          </span>
-
-          <span className="text-[12px] text-gray-500">
-            (17,445)
-          </span>
-
-        </div>
-
-        {/* PRICE */}
-        <p className="mt-3 text-[12px] text-gray-500">
-          Starting at
-        </p>
-
-        <div className="mt-1 flex items-start leading-none">
-
-          <span className="text-[24px] font-bold tracking-[-0.05em] text-[#1d1d1f]">
-            ₦{formattedPrice}
-          </span>
-
-          <span className="pt-[4px] text-[12px] font-bold text-[#1d1d1f]">
-            .00
-          </span>
-
-        </div>
-
-        <p className="mt-1 text-[13px] text-gray-500 line-through">
-          ₦
-          {(product.price * 1.35).toLocaleString(undefined, {
-            maximumFractionDigits: 0,
-          })}
-          .00 new
-        </p>
-
+        ))}
       </div>
 
+      {/* TITLE */}
+      <h3 className="mt-4 text-[15px] font-semibold tracking-[-0.03em] text-[#1d1d1f]">
+        {product.title}
+      </h3>
+
+      {/* RATING */}
+      <div className="mt-3 flex items-center gap-1.5">
+        <div className="text-[10px] tracking-tight text-black">
+          {stars}
+          {emptyStars}
+        </div>
+
+        <span className="text-[10px] font-medium text-[#1d1d1f]">
+          {product.rating || 0}/5
+        </span>
+
+        <span className="text-[10px] text-gray-500">
+          ({(product.review_count || 0).toLocaleString()})
+        </span>
+      </div>
+
+      {/* PRICE LABEL */}
+      <p className="mt-3 text-[10px] font-medium text-gray-500">
+        Starting at
+      </p>
+
+      {/* PRICE */}
+      <div className="mt-1 flex items-start leading-none">
+        <span className="text-[18px] font-bold tracking-[-0.05em] text-[#111111]">
+          ₦{formattedPrice}
+        </span>
+      </div>
+
+      {/* ORIGINAL PRICE */}
+      <p className="mt-2 text-[13px] text-gray-500 line-through">
+        ₦
+        {Math.floor(
+          product.original_price ||
+            defaultVariant.price * 1.35
+        ).toLocaleString()}
+      </p>
     </div>
   );
 }

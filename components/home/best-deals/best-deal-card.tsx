@@ -1,14 +1,33 @@
 import Image from "next/image";
+import type { Product } from "@/types/product";
 
-type Product = {
+type ProductVariant = {
   id: number;
-  title: string;
-  brand: string;
+  product_id: number;
+  colour: string;
+  storage: string;
+  battery_health: number;
   price: number;
+  stock: number;
   image: string;
   condition: string;
-  battery_health: number;
-  storage: string;
+  inspection_score: number;
+};
+
+
+const colourMap: Record<string, string> = {
+  Black: "#111111",
+  "Black Titanium": "#1f1f1f",
+  White: "#f5f5f5",
+  "White Titanium": "#e8e8e8",
+  Silver: "#cfcfcf",
+  Gold: "#d4b06a",
+  Blue: "#6f8db5",
+  "Blue Titanium": "#6f8db5",
+  Green: "#c7d7c1",
+  Purple: "#b9a5d6",
+  Pink: "#d9b8b1",
+  "Natural Titanium": "#d4cdc1",
 };
 
 export default function BestDealCard({
@@ -16,76 +35,102 @@ export default function BestDealCard({
 }: {
   product: Product;
 }) {
-  const formattedPrice = Math.floor(product.price).toLocaleString();
+  const defaultVariant = product.product_variants?.[0];
+
+  if (!defaultVariant) {
+    return null;
+  }
+
+  const formattedPrice = Math.floor(
+    defaultVariant.price || 0
+  ).toLocaleString();
+
+  const stars = "★".repeat(
+    Math.floor(product.rating || 0)
+  );
+
+  const emptyStars = "☆".repeat(
+    5 - Math.floor(product.rating || 0)
+  );
+
+  const uniqueColours = [
+    ...new Set(
+      product.product_variants.map(
+        (variant) => variant.colour
+      )
+    ),
+  ];
 
   return (
-    /* 
-      FIXED MOBILE STRUCTURE: 
-      - w-[290px] ensures the card is wide and spacious on mobile, matching Screenshot 2026-05-27 at 13.42.08.png
-      - lg:w-auto & lg:min-w-[300px] completely preserves your desktop design layout unchanged.
-    */
-    <div className="w-[290px] shrink-0 rounded-[28px] bg-white p-5 lg:w-auto lg:min-w-[300px]">
-
+    <div className="w-[280px] shrink-0 rounded-[28px] bg-white p-5">
       {/* IMAGE */}
-      <div className="relative flex h-[190px] items-center justify-center overflow-hidden lg:h-[170px]">
+      <div className="relative flex h-[190px] items-center justify-center overflow-hidden">
         <Image
-          src={product.image}
+          src={defaultVariant.image}
           alt={product.title}
-          width={165}
-          height={165}
+          width={145}
+          height={145}
           priority
-          className="object-contain lg:h-[145px] lg:w-[145px]"
+          className="object-contain"
         />
       </div>
 
-      {/* COLORS (Carousel Indicator Dots) */}
-      <div className="mt-4 flex items-left justify-start gap-2 lg:mt-2 lg:justify-start">
-        <div className="h-3.5 w-3.5 rounded-full border border-black bg-black" />
-        <div className="h-3.5 w-3.5 rounded-full border border-[#d8e6cf] bg-[#d8e6cf]" />
-        <div className="h-3.5 w-3.5 rounded-full border border-[#cfcfcf] bg-[#cfcfcf]" />
-        <div className="h-3.5 w-3.5 rounded-full border border-[#d9b8b1] bg-[#d9b8b1]" />
+      {/* COLOURS */}
+      <div className="mt-4 flex justify-center gap-2">
+        {uniqueColours.slice(0, 4).map((colour) => (
+          <div
+            key={colour}
+            className="h-3 w-3 rounded-full border"
+            style={{
+              backgroundColor:
+                colourMap[colour] || "#cccccc",
+              borderColor:
+                colourMap[colour] || "#cccccc",
+            }}
+            title={colour}
+          />
+        ))}
       </div>
 
       {/* TITLE */}
-      <h3 className="mt-4 text-left text-[18px] font-semibold tracking-[-0.03em] text-[#1d1d1f] lg:text-left lg:text-[15px]">
+      <h3 className="mt-4 text-[15px] font-semibold tracking-[-0.03em] text-[#1d1d1f]">
         {product.title}
       </h3>
 
       {/* RATING */}
-      <div className="mt-3 flex items-left justify-start gap-1.5 lg:justify-start">
-        <div className="text-[13px] tracking-tight text-black lg:text-[11px]">
-          ★★★★☆
+      <div className="mt-3 flex items-center gap-1.5">
+        <div className="text-[10px] tracking-tight text-black">
+          {stars}
+          {emptyStars}
         </div>
-        <span className="text-[15px] font-medium text-[#1d1d1f] lg:text-[13px]">
-          4.4/5
+
+        <span className="text-[10px] font-medium text-[#1d1d1f]">
+          {product.rating || 0}/5
         </span>
-        <span className="text-[15px] text-gray-500 lg:text-[13px]">
-          (1,743)
+
+        <span className="text-[10px] text-gray-500">
+          ({(product.review_count || 0).toLocaleString()})
         </span>
       </div>
 
       {/* PRICE LABEL */}
-      <p className="mt-5 text-[15px] text-gray-500 lg:mt-4 lg:text-[13px]">
+      <p className="mt-3 text-[10px] font-medium text-gray-500">
         Starting at
       </p>
 
       {/* PRICE */}
       <div className="mt-1 flex items-start leading-none">
-        <span className="text-[30px] font-bold tracking-[-0.05em] text-[#111111] lg:text-[28px]">
+        <span className="text-[18px] font-bold tracking-[-0.05em] text-[#111111]">
           ₦{formattedPrice}
-        </span>
-        <span className="pt-[5px] text-[18px] font-bold text-[#111111] lg:pt-[3px] lg:text-[14px]">
-          .00
         </span>
       </div>
 
-      {/* OLD PRICE */}
-      <p className="mt-2 text-[15px] text-gray-500 line-through lg:mt-1 lg:text-[13px]">
+      {/* ORIGINAL PRICE */}
+      <p className="mt-2 text-[13px] text-gray-500 line-through">
         ₦
-        {(product.price * 1.35).toLocaleString(undefined, {
-          maximumFractionDigits: 0,
-        })}
-        .99 new
+        {Math.floor(
+          product.original_price || 0
+        ).toLocaleString()}
       </p>
 
     </div>

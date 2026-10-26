@@ -4,60 +4,94 @@ import DealSlider from "./deal-slider";
 import DealCategories from "./deal-categories";
 
 export default async function BestDeals() {
-  const { data: products } = await supabase
+  const { data: products, error: productsError } = await supabase
     .from("products")
     .select("*")
     .eq("featured", true)
     .limit(8);
 
+  if (productsError) {
+  throw new Error(
+    `Products query failed: ${JSON.stringify({
+      message: productsError.message,
+      details: productsError.details,
+      hint: productsError.hint,
+      code: productsError.code,
+    })}`
+  );
+}
+
+  const { data: variants, error: variantsError } = await supabase
+    .from("product_variants")
+    .select("*");
+
+  if (variantsError) {
+    console.error("BestDeals - variants query failed:", {
+      message: variantsError.message,
+      details: variantsError.details,
+      hint: variantsError.hint,
+      code: variantsError.code,
+    });
+
+    return null;
+  }
+
+  const productsWithVariants =
+    products?.map((product) => {
+      const productVariants =
+        variants?.filter(
+          (variant) =>
+            Number(variant.product_id) === Number(product.id)
+        ) ?? [];
+
+      const defaultVariant =
+        productVariants.find((variant) => variant.is_default) ??
+        productVariants[0];
+
+      return {
+        ...product,
+        image: defaultVariant?.image ?? null,
+        price: defaultVariant?.price ?? 0,
+        product_variants: productVariants,
+      };
+    }) ?? [];
+
   return (
-    <section className="px-6 py-16 lg:px-12">
+    <section className="mx-auto px-6 py-16">
+      <div className="mx-auto max-w-7xl px-6">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-violet-600">
+          Best Deals
+        </p>
 
-      <div className="mx-auto max-w-7xl">
-
-        {/* TITLE */}
-        <h2 className="text-[34px] font-black tracking-[-0.05em] text-[#111111]">
+        <h2 className="mt-3 text-[24px] font-bold tracking-[-0.05em] text-[#111111]">
           Shop our best deals
         </h2>
 
-        {/* SHOWCASE */}
-        <div className="mt-8 overflow-hidden rounded-[36px] bg-[#f1f1f1]">
-
-          <div className="flex flex-col lg:flex-row">
-
-            {/* LEFT IMAGE */}
-            <div className="relative h-[160px] w-full sm:h-[200px] lg:h-auto lg:w-[34%]">
-
+        <div className="mt-8 overflow-hidden rounded-[36px] bg-violet-100">
+          <div className="grid lg:grid-cols-[340px_1fr]">
+            <div className="relative self-stretch">
               <Image
-                src="/images/best-deals/best-deals-banner.avif"
+                src="https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/banners/best-deals-banner.avif"
                 alt="Best deals"
                 fill
                 priority
+                sizes="(max-width:1024px) 100vw, 340px"
                 className="object-cover"
               />
 
+              <div className="h-[180px] lg:hidden" />
             </div>
 
-            {/* RIGHT CONTENT */}
-            <div className="flex-1 p-5 lg:p-6">
-
+            <div className="min-w-0 p-4 lg:p-6">
               <DealCategories />
 
-              {/* PRODUCTS PLACEHOLDER */}
-              <div className="mt-6 flex gap-5 overflow-x-auto">
-
-                <DealSlider products={products || []} />
-
+              <div className="mt-6">
+                <DealSlider products={productsWithVariants} />
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </section>
   );
 }

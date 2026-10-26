@@ -43,7 +43,7 @@ export default function FaqSection() {
             FAQ
           </p>
 
-          <h2 className="mt-3 text-4xl font-black tracking-[-0.05em] text-[#111111] lg:text-5xl">
+          <h2 className="mt-3 text-[24px] font-bold tracking-[-0.05em] text-[#111111]">
             Frequently Asked Questions
           </h2>
 
@@ -58,11 +58,11 @@ export default function FaqSection() {
               className="rounded-[28px] border border-[#ebe7ff] bg-white p-6 lg:p-8"
             >
 
-              <h3 className="text-[18px] font-semibold tracking-[-0.03em] text-[#111111]">
+              <h3 className="text-[16px] font-medium leading-relaxed text-[#111111]">
                 {faq.question}
               </h3>
 
-              <p className="mt-4 text-[16px] leading-[1.8] text-[#5f6470]">
+              <p className="mt-4 text-[15px] leading-relaxed text-[#5f6470]">
                 {faq.answer}
               </p>
 

@@ -6,31 +6,31 @@ import Image from "next/image";
 const bestDeals = [
   {
     title: "Price drop",
-    image: "/images/best-deals/best-deals-price-drop.avif",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/banners/best-deals-price-drop.avif",
   },
   {
     title: "MacBook",
-    image: "/images/best-deals/best-deals-macbook-category.avif",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/banners/best-deals-macbook-category.avif",
   },
   {
     title: "iPad",
-    image: "/images/best-deals/best-deals-ipad-category.avif",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/banners/best-deals-ipad-category.avif",
   },
   {
     title: "Android",
-    image: "/images/best-deals/best-deals-android-category.avif",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/banners/best-deals-android-category.avif",
   },
   {
     title: "iPhone",
-    image: "/images/best-deals/best-deals-iphone-category.avif",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/banners/best-deals-iphone-category.avif",
   },
   {
     title: "AirPods",
-    image: "/images/best-deals/best-deals-airpods-category.avif",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/banners/best-deals-airpods-category.avif",
   },
   {
     title: "Gaming",
-    image: "/images/best-deals/best-deals-gaming-category.avif",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/banners/best-deals-gaming-category.avif",
   },
 ];
 

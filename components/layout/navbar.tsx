@@ -2,50 +2,91 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   Menu,
   Search,
   ShoppingCart,
   User,
-  Repeat,
+  ShieldCheck,
   X,
+  ChevronDown,
 } from "lucide-react";
 
-const categories = [
+const marketplaceCategories = [
   {
-    name: "iPhone",
-    href: "/products/iphone",
+    name: "Great Deals",
+    href: "/products/great-deals",
   },
   {
-    name: "MacBook",
-    href: "/products/macbook",
+    name: "Smartphones",
+    href: "/products/smartphones",
   },
   {
-    name: "iPad",
-    href: "/products/ipad",
+    name: "Laptops",
+    href: "/products/laptops",
   },
   {
-    name: "Android",
-    href: "/products/android",
+    name: "Tablets",
+    href: "/products/tablets",
   },
   {
     name: "Gaming",
     href: "/products/gaming",
   },
   {
-    name: "Windows",
-    href: "/products/windows",
+    name: "Smartwatches",
+    href: "/products/smartwatches",
   },
   {
-    name: "AirPods",
-    href: "/products/airpods",
+    name: "Audio",
+    href: "/products/audio",
+  },
+  {
+    name: "Accessories",
+    href: "/products/accessories",
   },
 ];
 
+const navLinks = [
+  {
+    name: "Trade In",
+    href: "/trade-in",
+  },
+  {
+    name: "About",
+    href: "/about",
+  },
+  {
+    name: "Support",
+    href: "/support",
+  },
+];
+
+
+
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<
+    "marketplace" | "tradein" | "about" | "support" | null
+  >(null);
+  const [mobileMarketplaceOpen, setMobileMarketplaceOpen] = useState(false);
+
+  const closeTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const openMenu = (
+    menu: "marketplace" | "tradein" | "about" | "support"
+  ) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setActiveMenu(menu);
+  };
+
+  const closeMenu = () => {
+    closeTimer.current = setTimeout(() => {
+      setActiveMenu(null);
+    }, 120);
+  };
 
   return (
     <>
@@ -57,7 +98,7 @@ export default function Navbar() {
         <div className="hidden lg:block">
 
           {/* TOP ROW */}
-          <div className="border-b border-[#f1f1f1]">
+          <div className="">
 
             <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
 
@@ -68,7 +109,7 @@ export default function Navbar() {
                 <Link href="/" className="shrink-0">
 
                   <Image
-                    src="/images/branding/rebox-logo.png"
+                    src="https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/branding/rebox-logo.png"
                     alt="Rebox"
                     width={150}
                     height={42}
@@ -96,7 +137,7 @@ export default function Navbar() {
 
                     <input
                       type="text"
-                      placeholder="Search phones, laptops, tablets..."
+                      placeholder="Search devices, brands or IMEI..."
                       className="w-full bg-transparent text-[15px] font-medium text-[#111111] outline-none placeholder:text-gray-400"
                     />
 
@@ -130,37 +171,165 @@ export default function Navbar() {
           </div>
 
           {/* SECOND ROW */}
-          <div className="h-16 border-b border-[#f1f1f1] bg-white">
+        <div className="relative h-16 border-b border-[#f1f1f1] bg-white">
 
-            <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
+          <div
+            className="mx-auto flex h-full max-w-7xl items-center justify-between px-6"
+            onMouseLeave={closeMenu}
+          >
 
-              {/* CATEGORY LINKS */}
-              <div className="flex items-center gap-10">
+            <div className="flex h-full items-center gap-10">
 
-                {categories.map((category) => (
-                  <Link
-                    key={category.name}
-                    href={category.href}
-                    className="text-[16px] font-medium text-[#111111] transition-all hover:text-violet-600"
-                  >
-                    {category.name}
-                  </Link>
-                ))}
+              {/* Marketplace */}
+              <div
+                onMouseEnter={() => openMenu("marketplace")}
+                className="group relative flex h-full items-center"
+              >
+                <Link
+                  href="/products"
+                  className="flex h-full items-center text-[15px] font-medium text-[#111111] transition-colors hover:text-violet-600"
+                >
+                  Marketplace
 
+                  <ChevronDown
+                    className={`ml-1 h-4 w-4 transition-all duration-300 ${
+                      activeMenu === "marketplace" ? "rotate-180" : ""
+                    }`}
+                  />
+
+                  <span
+                    className={`absolute bottom-0 left-0 h-[2px] bg-violet-600 transition-all duration-300 ${
+                      activeMenu === "marketplace"
+                        ? "w-full"
+                        : "w-0 group-hover:w-full"
+                    }`}
+                  />
+                </Link>
               </div>
 
-              {/* TRADE IN */}
-              <button className="flex h-12 items-center gap-2 rounded-full border border-[#ececec] bg-white px-5 text-[14px] font-semibold text-[#111111] transition-all hover:bg-[#fafafa]">
+              {/* Trade In */}
+              <button
+                onMouseEnter={() => openMenu("tradein")}
+                className="group relative flex h-full items-center text-[15px] font-medium text-[#111111] transition-colors hover:text-violet-600"
+              >
+                Trade In
 
-                <Repeat className="h-4 w-4" />
+                <ChevronDown
+                  className={`ml-1 h-4 w-4 transition-all duration-300 ${
+                    activeMenu === "tradein" ? "rotate-180" : ""
+                  }`}
+                />
 
-                Trade-in
-
+                <span
+                  className={`absolute bottom-0 left-0 h-[2px] bg-violet-600 transition-all duration-300 ${
+                    activeMenu === "tradein"
+                      ? "w-full"
+                      : "w-0 group-hover:w-full"
+                  }`}
+                />
               </button>
+
+            {/* About */}
+            <button
+              onMouseEnter={() => openMenu("about")}
+              className="group relative flex h-full items-center text-[15px] font-medium text-[#111111] transition-colors hover:text-violet-600"
+            >
+              About
+
+              <ChevronDown
+                className={`ml-1 h-4 w-4 transition-all duration-300 ${
+                  activeMenu === "about" ? "rotate-180" : ""
+                }`}
+              />
+
+              <span
+                className={`absolute bottom-0 left-0 h-[2px] bg-violet-600 transition-all duration-300 ${
+                  activeMenu === "about"
+                    ? "w-full"
+                    : "w-0 group-hover:w-full"
+                }`}
+              />
+            </button>
+
+            {/* Support */}
+            <button
+              onMouseEnter={() => openMenu("support")}
+              className="group relative flex h-full items-center text-[15px] font-medium text-[#111111] transition-colors hover:text-violet-600"
+            >
+              Support
+
+              <ChevronDown
+                className={`ml-1 h-4 w-4 transition-all duration-300 ${
+                  activeMenu === "support" ? "rotate-180" : ""
+                }`}
+              />
+
+              <span
+                className={`absolute bottom-0 left-0 h-[2px] bg-violet-600 transition-all duration-300 ${
+                  activeMenu === "support"
+                    ? "w-full"
+                    : "w-0 group-hover:w-full"
+                }`}
+              />
+            </button>
 
             </div>
 
+            {/* Verify Button */}
+            <button
+              className="flex h-12 items-center gap-2 rounded-full border border-[#ececec] bg-white px-5 text-[14px] font-semibold text-[#111111] transition-all duration-300 hover:bg-[#fafafa]"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              Rebox Verify
+            </button>
           </div>
+
+          {/* Mega Menu */}
+          {activeMenu && (
+            <div
+              onMouseEnter={() => {
+                if (closeTimer.current) {
+                  clearTimeout(closeTimer.current);
+                }
+              }}
+              onMouseLeave={closeMenu}
+              className="absolute left-0 top-full w-full border-t border-[#ececec] bg-white shadow-lg"
+            >
+              <div className="mx-auto max-w-7xl px-6 py-10">
+
+                {activeMenu === "marketplace" && (
+                  <div className="grid grid-cols-4 gap-6">
+
+                    {marketplaceCategories.map((category) => (
+                      <Link
+                        key={category.name}
+                        href={category.href}
+                        className="rounded-xl p-4 transition hover:bg-[#f8f8fb]"
+                      >
+                        {category.name}
+                      </Link>
+                    ))}
+
+                  </div>
+                )}
+
+                {activeMenu === "tradein" && (
+                  <h2>Trade In Menu</h2>
+                )}
+
+                {activeMenu === "about" && (
+                  <h2>About Menu</h2>
+                )}
+
+                {activeMenu === "support" && (
+                  <h2>Support Menu</h2>
+                )}
+
+              </div>
+            </div>
+          )}
+
+        </div>
 
         </div>
 
@@ -220,7 +389,7 @@ export default function Navbar() {
 
           </div>
 
-          {/* SEARCH + TRADE IN */}
+          {/* SEARCH + Rebox Verify */}
           <div className="flex items-center gap-3 px-4 pb-4">
 
             {/* SEARCH */}
@@ -237,19 +406,19 @@ export default function Navbar() {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full bg-transparent text-[15px] font-medium text-[#111111] outline-none placeholder:text-gray-400"
+                  className="w-full bg-transparent text-[14px] font-medium text-[#111111] outline-none placeholder:text-gray-400"
                 />
 
               </div>
 
             </div>
 
-            {/* TRADE IN */}
+            {/* Rebox Verify */}
             <button className="flex h-12 shrink-0 items-center gap-2 rounded-full border border-[#ececec] bg-white px-4 text-[14px] font-semibold text-[#111111]">
 
-              <Repeat className="h-4 w-4" />
+              <ShieldCheck className="h-4 w-4" />
 
-              Trade-in
+              Rebox Verify
 
             </button>
 
@@ -299,16 +468,43 @@ export default function Navbar() {
             {/* LINKS */}
             <div className="flex flex-col px-5 pb-10 pt-2">
 
-              {categories.map((category) => (
-                <Link
-                  key={category.name}
-                  href={category.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="border-b border-[#f3f3f3] py-5 text-[20px] font-medium tracking-[-0.02em] text-[#111111]"
-                >
-                  {category.name}
-                </Link>
-              ))}
+            <button
+              onClick={() =>
+                setMobileMarketplaceOpen(!mobileMarketplaceOpen)
+              }
+              className="flex items-center justify-between border-b border-[#f3f3f3] py-5 text-left text-[18px] font-medium tracking-[-0.02em] text-[#111111]"
+            >
+              <span>Marketplace</span>
+              <span>{mobileMarketplaceOpen ? "−" : "+"}</span>
+            </button>
+
+            {mobileMarketplaceOpen && (
+              <div className="pb-2">
+
+                {marketplaceCategories.map((category) => (
+                  <Link
+                    key={category.name}
+                    href={category.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="block py-4 pl-5 text-[16px] text-[#666]"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+
+              </div>
+            )}
+
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="border-b border-[#f3f3f3] py-5 text-[18px] font-medium tracking-[-0.02em] text-[#111111]"
+              >
+                {link.name}
+              </Link>
+            ))}
 
             </div>
 

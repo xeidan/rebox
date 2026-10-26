@@ -23,9 +23,9 @@ export default function ReviewsSection() {
   ];
 
   return (
-    <section className="px-6 py-20 lg:px-12">
+    <section className="px-6 py-20 px-6">
 
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-7xl px-6">
 
         {/* HEADER */}
         <div className="max-w-2xl">
@@ -34,11 +34,11 @@ export default function ReviewsSection() {
             Reviews
           </p>
 
-          <h2 className="mt-3 text-4xl font-black tracking-[-0.05em] text-[#111111] lg:text-5xl">
-            What People Are Saying
+          <h2 className="mt-3 text-[24px] font-bold tracking-[-0.05em] text-[#111111]">
+            What people Are Saying
           </h2>
 
-          <p className="mt-5 text-lg leading-relaxed text-[#5f6470]">
+          <p className="mt-5 text-[#111111] font-medium text-[16px] leading-relaxed">
             Thousands of Nigerians are switching to verified pre-owned
             devices without paying flagship prices.
           </p>
@@ -60,7 +60,7 @@ export default function ReviewsSection() {
               </div>
 
               {/* REVIEW */}
-              <p className="mt-6 text-[17px] leading-[1.8] text-[#3e4450]">
+              <p className="mt-6 text-[15px] leading-relaxed text-[#3e4450]">
                 “{review.review}”
               </p>
 

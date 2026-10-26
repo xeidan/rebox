@@ -3,24 +3,19 @@ import { categories } from "@/data/categories";
 
 export default function CategorySection() {
   return (
-    <section className="px-6 py-14 lg:px-12">
+    <section className="px-6 py-14 mx-auto">
 
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-7xl px-6">
 
         <div className="max-w-2xl">
 
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-violet-600">
-            Marketplace
+            categories
           </p>
 
-          <h2 className="mt-3 text-4xl font-black tracking-[-0.05em] text-[#111111]">
-            Shop Verified Categories
+          <h2 className="mt-3 text-[24px] font-bold tracking-[-0.05em] text-[#111111]">
+            Shop verified categories
           </h2>
-
-          <p className="mt-4 text-lg leading-relaxed text-gray-600">
-            Explore devices verified through Rebox Verify with
-            transparent grading and battery health certification.
-          </p>
 
         </div>
 

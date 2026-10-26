@@ -10,17 +10,28 @@ type Props = {
 export default async function CategoryPage({
   params,
 }: Props) {
-
   const { data: products } = await supabase
     .from("products")
     .select("*")
     .ilike("brand", `%${params.category}%`);
 
+  const { data: variants } = await supabase
+    .from("product_variants")
+    .select("*");
+
+  const productsWithVariants =
+    products?.map((product) => ({
+      ...product,
+      product_variants:
+        variants?.filter(
+          (variant) =>
+            Number(variant.product_id) === Number(product.id)
+        ) || [],
+    })) || [];
+
   return (
     <main className="min-h-screen bg-white px-6 py-10">
-
       <div className="mx-auto max-w-7xl">
-
         <h1 className="text-4xl font-bold tracking-tight text-[#111111] capitalize">
           {params.category}
         </h1>
@@ -30,15 +41,11 @@ export default async function CategoryPage({
         </p>
 
         <div className="mt-10">
-
           <ProductGrid
-            products={products || []}
+            products={productsWithVariants}
           />
-
         </div>
-
       </div>
-
     </main>
   );
 }

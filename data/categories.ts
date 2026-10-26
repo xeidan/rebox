@@ -2,48 +2,48 @@ export const categories = [
   {
     title: "Great Deals",
     slug: "great-deals",
-    image: "/images/categories/great-deals.png",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/categories/great-deals.avif",
   },
 
   {
-    title: "iPhone",
-    slug: "iphone",
-    image: "/images/categories/iphone-group.png",
+    title: "Smartphones",
+    slug: "smartphones",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/categories/iphone-group.avif",
   },
 
   {
-    title: "MacBook",
-    slug: "macbook",
-    image: "/images/categories/macbook-category.png",
+    title: "Laptops",
+    slug: "laptops",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/categories/macbook-category.avif",
   },
 
   {
-    title: "iPad",
-    slug: "ipad",
-    image: "/images/categories/ipad-category.png",
+    title: "Tablets",
+    slug: "tablets",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/categories/ipad-category.avif",
   },
 
   {
     title: "Gaming",
     slug: "gaming",
-    image: "/images/categories/gaming-category.png",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/categories/gaming-category.avif",
   },
 
   {
-    title: "Android",
-    slug: "android",
-    image: "/images/categories/android-category.png",
+    title: "Smartwatches",
+    slug: "smartwatches",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/categories/smartwatches-category.avif",
   },
 
   {
-    title: "Windows",
-    slug: "windows",
-    image: "/images/categories/windows-category.png",
+    title: "Audio",
+    slug: "audio",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/categories/audio-category.avif",
   },
 
   {
-    title: "Airpods",
-    slug: "airpods",
-    image: "/images/categories/airpods-category.png",
+    title: "Accessories",
+    slug: "accessories",
+    image: "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/categories/accessories-category.avif",
   },
 ];
