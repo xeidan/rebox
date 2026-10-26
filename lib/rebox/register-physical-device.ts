@@ -56,10 +56,7 @@ export async function registerPhysicalDevice(
   );
 
   if (error) {
-    console.error(
-      "Physical-device registration failed:",
-      error.message
-    );
+    console.error("Physical-device registration failed.");
     throw new Error("Could not register physical device");
   }
 
