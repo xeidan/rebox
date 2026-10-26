@@ -5,6 +5,7 @@ import { lookupImei } from "@/lib/rebox/providers/imei-info";
 import { reconcileDevice } from "@/lib/rebox/catalog-reconciliation";
 import { registerPhysicalDevice } from "@/lib/rebox/register-physical-device";
 import { persistDeviceEvidence } from "@/lib/rebox/persist-device-evidence";
+import { imeiLookupRateLimit } from "@/lib/rebox/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -68,13 +69,41 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Validate IMEI format before making a provider request.
+    // Validate IMEI format before applying rate limits or calling the provider.
     const imei = normalized.replace(/\s+/g, "");
 
     if (!/^\d{15}$/.test(imei)) {
       return NextResponse.json(
         { error: "IMEI must contain exactly 15 digits." },
         { status: 400 }
+      );
+    }
+
+    // Use the client IP supplied by the trusted hosting platform.
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const clientIp = forwardedFor?.split(",")[0]?.trim();
+
+    if (!clientIp) {
+      return NextResponse.json(
+        { error: "Unable to process this request." },
+        { status: 503 }
+      );
+    }
+
+    // Shared Upstash limit: 5 IMEI lookups per minute per client IP.
+    const { success, reset } = await imeiLookupRateLimit.limit(clientIp);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many IMEI lookup requests. Try again shortly." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(
+              Math.max(1, Math.ceil((reset - Date.now()) / 1000))
+            ),
+          },
+        }
       );
     }
 
@@ -127,9 +156,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.error(
-  "Device identification failed. Request could not be completed."
-);
+      "Device identification failed. Request could not be completed."
+    );
 
+    // Fail closed if the rate-limit service or another dependency fails.
     return NextResponse.json(
       { error: "Device identification is temporarily unavailable." },
       { status: 502 }

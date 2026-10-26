@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   reconcileDevice: vi.fn(),
   registerPhysicalDevice: vi.fn(),
   persistDeviceEvidence: vi.fn(),
+  rateLimit: vi.fn(),
 }));
 
 vi.mock("@/lib/rebox/device-detection", () => ({
@@ -30,15 +31,27 @@ vi.mock("@/lib/rebox/persist-device-evidence", () => ({
   persistDeviceEvidence: mocks.persistDeviceEvidence,
 }));
 
+vi.mock("@/lib/rebox/rate-limit", () => ({
+  imeiLookupRateLimit: {
+    limit: mocks.rateLimit,
+  },
+}));
+
 import { POST } from "@/app/api/devices/identify/route";
 
-function makeRequest(body: unknown): NextRequest {
+function makeRequest(
+  body: unknown,
+  headers: Record<string, string> = {
+    "x-forwarded-for": "203.0.113.10",
+  }
+): NextRequest {
   return new NextRequest(
     "http://localhost:3000/api/devices/identify",
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...headers,
       },
       body: JSON.stringify(body),
     }
@@ -52,6 +65,7 @@ function makeInvalidJsonRequest(): NextRequest {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-forwarded-for": "203.0.113.10",
       },
       body: "{invalid-json",
     }
@@ -61,6 +75,13 @@ function makeInvalidJsonRequest(): NextRequest {
 describe("POST /api/devices/identify", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mocks.rateLimit.mockResolvedValue({
+      success: true,
+      limit: 5,
+      remaining: 4,
+      reset: Date.now() + 60_000,
+    });
 
     mocks.detectDevice.mockResolvedValue({
       detected: true,
@@ -99,7 +120,6 @@ describe("POST /api/devices/identify", () => {
     });
 
     mocks.registerPhysicalDevice.mockResolvedValue(123);
-
     mocks.persistDeviceEvidence.mockResolvedValue(undefined);
   });
 
@@ -112,7 +132,7 @@ describe("POST /api/devices/identify", () => {
     expect(mocks.lookupImei).not.toHaveBeenCalled();
   });
 
-  it("returns 400 when the request body is missing required fields", async () => {
+  it("returns 400 when required fields are missing", async () => {
     const response = await POST(makeRequest({ type: "imei" }));
     const body = await response.json();
 
@@ -139,10 +159,7 @@ describe("POST /api/devices/identify", () => {
 
   it("returns 400 for an empty identifier", async () => {
     const response = await POST(
-      makeRequest({
-        type: "imei",
-        value: "   ",
-      })
+      makeRequest({ type: "imei", value: "   " })
     );
 
     const body = await response.json();
@@ -167,12 +184,9 @@ describe("POST /api/devices/identify", () => {
     expect(mocks.lookupImei).not.toHaveBeenCalled();
   });
 
-  it("rejects an invalid IMEI before calling the provider", async () => {
+  it("rejects an invalid IMEI before rate limiting or provider lookup", async () => {
     const response = await POST(
-      makeRequest({
-        type: "imei",
-        value: "12345",
-      })
+      makeRequest({ type: "imei", value: "12345" })
     );
 
     const body = await response.json();
@@ -181,9 +195,8 @@ describe("POST /api/devices/identify", () => {
     expect(body.error).toBe(
       "IMEI must contain exactly 15 digits."
     );
-
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
     expect(mocks.lookupImei).not.toHaveBeenCalled();
-    expect(mocks.reconcileDevice).not.toHaveBeenCalled();
     expect(mocks.registerPhysicalDevice).not.toHaveBeenCalled();
     expect(mocks.persistDeviceEvidence).not.toHaveBeenCalled();
   });
@@ -205,7 +218,7 @@ describe("POST /api/devices/identify", () => {
       type: "model_number",
       value: "A3102",
     });
-
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
     expect(mocks.lookupImei).not.toHaveBeenCalled();
     expect(mocks.registerPhysicalDevice).not.toHaveBeenCalled();
   });
@@ -214,10 +227,7 @@ describe("POST /api/devices/identify", () => {
     const imei = "352973354630164";
 
     const response = await POST(
-      makeRequest({
-        type: "imei",
-        value: imei,
-      })
+      makeRequest({ type: "imei", value: imei })
     );
 
     const body = await response.json();
@@ -227,8 +237,8 @@ describe("POST /api/devices/identify", () => {
     expect(body.source).toBe("imei.info");
     expect(body.physicalDeviceId).toBe(123);
 
+    expect(mocks.rateLimit).toHaveBeenCalledWith("203.0.113.10");
     expect(mocks.lookupImei).toHaveBeenCalledWith(imei);
-
     expect(mocks.reconcileDevice).toHaveBeenCalledWith(
       "Apple",
       "iPhone 16 Plus"
@@ -253,7 +263,7 @@ describe("POST /api/devices/identify", () => {
     });
   });
 
-  it("does not register a physical device when the catalogue match is ambiguous", async () => {
+  it("allows registration when the catalogue match is ambiguous", async () => {
     mocks.reconcileDevice.mockResolvedValue({
       status: "ambiguous",
       device: null,
@@ -267,13 +277,52 @@ describe("POST /api/devices/identify", () => {
     );
 
     expect(response.status).toBe(200);
-
     expect(mocks.registerPhysicalDevice).toHaveBeenCalledWith({
       identifierType: "imei",
       identifierValue: "352973354630164",
       deviceId: null,
       variantId: null,
     });
+  });
+
+  it("returns 429 when the caller exceeds the rate limit", async () => {
+    mocks.rateLimit.mockResolvedValue({
+      success: false,
+      limit: 5,
+      remaining: 0,
+      reset: Date.now() + 30_000,
+    });
+
+    const response = await POST(
+      makeRequest({
+        type: "imei",
+        value: "352973354630164",
+      })
+    );
+
+    const body = await response.json();
+
+    expect(response.status).toBe(429);
+    expect(body.error).toContain("Too many IMEI lookup requests");
+    expect(response.headers.get("Retry-After")).toBeTruthy();
+    expect(mocks.lookupImei).not.toHaveBeenCalled();
+    expect(mocks.registerPhysicalDevice).not.toHaveBeenCalled();
+  });
+
+  it("returns 503 when the client IP is unavailable", async () => {
+    const response = await POST(
+      makeRequest(
+        {
+          type: "imei",
+          value: "352973354630164",
+        },
+        {}
+      )
+    );
+
+    expect(response.status).toBe(503);
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
+    expect(mocks.lookupImei).not.toHaveBeenCalled();
   });
 
   it("returns a safe error when the provider fails", async () => {
@@ -294,11 +343,7 @@ describe("POST /api/devices/identify", () => {
     expect(body.error).toBe(
       "Device identification is temporarily unavailable."
     );
-
-    expect(JSON.stringify(body)).not.toContain(
-      "352973354630164"
-    );
-
+    expect(JSON.stringify(body)).not.toContain("352973354630164");
     expect(mocks.registerPhysicalDevice).not.toHaveBeenCalled();
     expect(mocks.persistDeviceEvidence).not.toHaveBeenCalled();
   });
@@ -321,11 +366,10 @@ describe("POST /api/devices/identify", () => {
     expect(body.error).toBe(
       "Device identification is temporarily unavailable."
     );
-
     expect(mocks.persistDeviceEvidence).not.toHaveBeenCalled();
   });
 
-  it("does not expose provider secrets or raw identifiers in error responses", async () => {
+  it("does not expose provider secrets or raw identifiers in responses", async () => {
     mocks.lookupImei.mockRejectedValue(
       new Error(
         "API_KEY=super-secret-token; failed IMEI 352973354630164"
