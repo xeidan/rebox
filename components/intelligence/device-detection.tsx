@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect } from "react";
@@ -15,9 +16,15 @@ type UserAgentData = {
 
 type CatalogueResult = {
   detected: boolean;
+  status?: string;
+  reason?: string | null;
   device: Record<string, unknown> | null;
   variant: Record<string, unknown> | null;
+  variants?: Record<string, unknown>[];
+  candidates?: unknown[];
   confidence: number;
+  confidenceLevel?: string;
+  matchMethod?: string | null;
 };
 
 export type DetectedDevice = {
@@ -29,22 +36,32 @@ export type DetectedDevice = {
   operatingSystem?: string;
   model?: string | null;
   catalogueMatch?: CatalogueResult | null;
+  identificationLevel?: "device_category" | "catalogue_model";
 };
 
 const MODEL_HINT_TIMEOUT = 1500;
 const CATALOGUE_TIMEOUT = 2500;
 
-function withTimeout<T>(
+async function withTimeout<T>(
   promise: Promise<T>,
   milliseconds: number,
   fallback: T,
 ): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((resolve) => {
-      setTimeout(() => resolve(fallback), milliseconds);
-    }),
-  ]);
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((resolve) => {
+        timeoutId = setTimeout(
+          () => resolve(fallback),
+          milliseconds,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
 }
 
 export function detectBrowser(
@@ -66,7 +83,7 @@ export function detectBrowser(
       );
 
       if (match) {
-        return name === "Google Chrome" ? "Google Chrome" : name;
+        return name === "Google Chrome" ? "Chrome" : name;
       }
     }
   }
@@ -74,10 +91,12 @@ export function detectBrowser(
   if (/Edg\//i.test(ua)) return "Microsoft Edge";
   if (/OPR\//i.test(ua)) return "Opera";
   if (/FxiOS|Firefox\//i.test(ua)) return "Firefox";
-  if (/CriOS\//i.test(ua)) return "Google Chrome";
+  if (/CriOS\//i.test(ua)) return "Chrome";
+
   if (/Chrome\//i.test(ua) && !/Chromium/i.test(ua)) {
-    return "Google Chrome";
+    return "Chrome";
   }
+
   if (/Chromium/i.test(ua)) return "Chromium";
   if (/Safari\//i.test(ua)) return "Safari";
 
@@ -105,7 +124,9 @@ function normalizePlatform(platform?: string | null): string | null {
   const value = platform.toLowerCase();
 
   if (value.includes("android")) return "Android";
-  if (value.includes("iphone") || value.includes("ipad")) return "iOS";
+  if (value.includes("iphone") || value.includes("ipad") || value === "ios") {
+    return "iOS";
+  }
   if (value.includes("windows")) return "Windows";
   if (value.includes("mac")) return "macOS";
   if (value.includes("chrome")) return "ChromeOS";
@@ -175,7 +196,9 @@ async function matchCatalogue(
   try {
     const response = await fetch("/api/devices/detect", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         type: "model",
         value: model,
@@ -185,7 +208,18 @@ async function matchCatalogue(
 
     if (!response.ok) return null;
 
-    return (await response.json()) as CatalogueResult;
+    const result: unknown = await response.json();
+
+    if (
+      !result ||
+      typeof result !== "object" ||
+      !("detected" in result) ||
+      typeof result.detected !== "boolean"
+    ) {
+      return null;
+    }
+
+    return result as CatalogueResult;
   } catch {
     return null;
   } finally {
@@ -195,6 +229,7 @@ async function matchCatalogue(
 
 export async function detectCurrentDevice(): Promise<DetectedDevice> {
   const ua = navigator.userAgent;
+
   const nav = navigator as Navigator & {
     userAgentData?: UserAgentData;
   };
@@ -208,7 +243,6 @@ export async function detectCurrentDevice(): Promise<DetectedDevice> {
   const isIPhone = /iPhone|iPod/i.test(ua);
   const isAndroid = /Android/i.test(ua);
 
-  // Establish basic device information immediately.
   const deviceType = detectDeviceType(
     ua,
     ipadOS,
@@ -217,7 +251,8 @@ export async function detectCurrentDevice(): Promise<DetectedDevice> {
 
   const browser = detectBrowser(ua, uaData?.brands);
 
-  let operatingSystem = detectOperatingSystem(ua, ipadOS);
+  let operatingSystem =
+    detectOperatingSystem(ua, ipadOS);
 
   let deviceName = "Desktop device";
 
@@ -227,7 +262,9 @@ export async function detectCurrentDevice(): Promise<DetectedDevice> {
     deviceName = "iPhone";
   } else if (isAndroid) {
     deviceName =
-      deviceType === "Tablet" ? "Android tablet" : "Android device";
+      deviceType === "Tablet"
+        ? "Android tablet"
+        : "Android device";
   } else if (/Windows/i.test(ua)) {
     deviceName = "Windows PC";
   } else if (/Macintosh|Mac OS X/i.test(ua)) {
@@ -242,19 +279,8 @@ export async function detectCurrentDevice(): Promise<DetectedDevice> {
     deviceName = "Tablet device";
   }
 
-  // Return a usable basic result even when advanced detection is unavailable.
-  const basicResult: DetectedDevice = {
-    deviceName,
-    deviceDetails: `${deviceType} · ${operatingSystem} · ${browser}`,
-    deviceType,
-    browser,
-    detected: true,
-    operatingSystem,
-    model: null,
-    catalogueMatch: null,
-  };
-
-  // Advanced model information is optional.
+  // Basic browser-based classification is independent of
+  // exact hardware identification.
   const { model, platform } = await detectModel(uaData);
 
   operatingSystem =
@@ -268,10 +294,16 @@ export async function detectCurrentDevice(): Promise<DetectedDevice> {
     catalogueMatch = await matchCatalogue(model);
   }
 
+  // Only use a catalogue-confirmed device as the exact display name.
   const matchedDevice =
-    catalogueMatch?.detected && catalogueMatch.device
+    catalogueMatch?.detected &&
+    catalogueMatch.status === "matched" &&
+    catalogueMatch.device
       ? catalogueMatch.device
       : null;
+
+  let identificationLevel: DetectedDevice["identificationLevel"] =
+    "device_category";
 
   if (matchedDevice) {
     const brand = String(matchedDevice.brand ?? "");
@@ -279,18 +311,20 @@ export async function detectCurrentDevice(): Promise<DetectedDevice> {
 
     if (brand && matchedModel) {
       deviceName = `${brand} ${matchedModel}`;
+      identificationLevel = "catalogue_model";
     }
-  } else if (model && isAndroid) {
-    deviceName = model;
   }
 
   return {
-    ...basicResult,
     deviceName,
     deviceDetails: `${deviceType} · ${operatingSystem} · ${browser}`,
+    deviceType,
+    browser,
+    detected: true,
     operatingSystem,
     model,
     catalogueMatch,
+    identificationLevel,
   };
 }
 
@@ -321,6 +355,7 @@ export default function DeviceDetection({
             operatingSystem: "Unknown OS",
             model: null,
             catalogueMatch: null,
+            identificationLevel: "device_category",
           });
         }
       });

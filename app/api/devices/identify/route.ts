@@ -15,12 +15,15 @@ function hasValidImeiCheckDigit(imei: string): boolean {
   if (!/^\d{15}$/.test(imei)) return false;
 
   let sum = 0;
+
   for (let i = 0; i < imei.length; i++) {
     let digit = Number(imei[i]);
+
     if (i % 2 === 1) {
       digit *= 2;
       if (digit > 9) digit -= 9;
     }
+
     sum += digit;
   }
 
@@ -66,7 +69,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Catalogue lookups do not incur external IMEI provider charges.
+    // Catalogue identification does not use the external IMEI provider.
     if (type === "model_number" || type === "model") {
       const result = await detectDevice({
         type,
@@ -76,15 +79,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         source: "rebox_catalog",
+
+        // Preserve the existing response fields.
         identification: result.device,
         variant: result.variant,
         confidence: result.confidence,
         catalogMatch: result.detected ? "matched" : "unmatched",
+
+        // Expose the complete identification result.
+        detected: result.detected,
+        status: result.status,
+        reason: result.reason ?? null,
+        variants: result.variants ?? [],
+        candidates: result.candidates ?? [],
+        confidenceLevel: result.confidenceLevel,
+        matchMethod: result.matchMethod,
+
         verification: null,
       });
     }
 
-    // Validate IMEI format before applying rate limits or calling the provider.
+    // Validate IMEI before rate limiting or calling the provider.
     const imei = normalized.replace(/\s+/g, "");
 
     if (!/^\d{15}$/.test(imei)) {
@@ -101,7 +116,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use the client IP supplied by the trusted hosting platform.
+    // Obtain the client IP supplied by the hosting platform.
     const forwardedFor = request.headers.get("x-forwarded-for");
     const clientIp = forwardedFor?.split(",")[0]?.trim();
 
@@ -112,7 +127,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Shared Upstash limit: 5 IMEI lookups per minute per client IP.
+    // Shared rate limit: 5 IMEI lookups per minute per client IP.
     const { success, reset } = await imeiLookupRateLimit.limit(clientIp);
 
     if (!success) {
@@ -132,26 +147,26 @@ export async function POST(request: NextRequest) {
     // Identify the device using the external provider.
     const result = await lookupImei(imei);
 
-    // Match the provider's identification against the Rebox catalogue.
+    // Reconcile the provider identification against the Rebox catalogue.
     const catalogMatch = await reconcileDevice(
       result.device.brand,
       result.device.model
     );
 
     // Register the physical device using its HMAC-hashed identifier.
-const physicalDeviceId = await registerPhysicalDeviceWithEvidence({
-  identifierType: "imei",
-  identifierValue: imei,
-  deviceId: catalogMatch.device?.id ?? null,
-  variantId: null,
-  provider: result.provider,
-  brand: result.device.brand,
-  model: result.device.model,
-  tac: result.device.tac,
-  specifications: result.device.specifications,
-  blacklistStatus: result.verification.blacklistStatus,
-  carrierLock: result.verification.carrierLock,
-});
+    const physicalDeviceId = await registerPhysicalDeviceWithEvidence({
+      identifierType: "imei",
+      identifierValue: imei,
+      deviceId: catalogMatch.device?.id ?? null,
+      variantId: null,
+      provider: result.provider,
+      brand: result.device.brand,
+      model: result.device.model,
+      tac: result.device.tac,
+      specifications: result.device.specifications,
+      blacklistStatus: result.verification.blacklistStatus,
+      carrierLock: result.verification.carrierLock,
+    });
 
     return NextResponse.json({
       success: true,
@@ -174,7 +189,6 @@ const physicalDeviceId = await registerPhysicalDeviceWithEvidence({
 
     console.error("Device identification failed.");
 
-    // Fail closed if the rate-limit service or another dependency fails.
     return NextResponse.json(
       { error: "Device identification is temporarily unavailable." },
       { status: 502 }

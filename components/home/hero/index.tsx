@@ -65,9 +65,10 @@ export default function Hero() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationIndex, setAnimationIndex] = useState(0);
 
-  const handleDetected = useCallback((detected: DetectedDevice) => {
-    setDevice(detected);
-  }, []);
+const handleDetected = useCallback((detected: DetectedDevice) => {
+  setDevice(detected);
+}, []);
+  
 
   useEffect(() => {
     if (
@@ -186,10 +187,14 @@ export default function Hero() {
             )}
 
             {device?.model && !device?.catalogueMatch?.detected && (
-              <p className="mt-3 text-xs font-medium text-amber-700">
-                Device model detected, but no catalogue match was found.
-              </p>
-            )}
+                <p className="mt-3 text-xs font-medium text-amber-700">
+                  {device.catalogueMatch?.status === "partial"
+                    ? "A possible catalogue match was found. Further identification is required."
+                    : device.catalogueMatch?.status === "ambiguous"
+                      ? "Multiple catalogue devices match this model. More information is required."
+                      : "Your browser reported a model, but Rebox could not confirm it in the catalogue."}
+                </p>
+              )}
 
             <p className="mt-6 max-w-lg text-base font-medium leading-7 text-gray-600">
               Rebox helps you understand your device, discover what it is
