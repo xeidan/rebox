@@ -99,7 +99,7 @@ export function detectOperatingSystem(
   return "Unknown OS";
 }
 
-function normalizePlatform(platform?: string): string | null {
+function normalizePlatform(platform?: string | null): string | null {
   if (!platform) return null;
 
   const value = platform.toLowerCase();
