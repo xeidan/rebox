@@ -21,6 +21,7 @@ export default async function BestDeals() {
   );
 }
 
+
   const { data: variants, error: variantsError } = await supabase
     .from("product_variants")
     .select("*");

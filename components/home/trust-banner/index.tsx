@@ -28,7 +28,7 @@ export default function TrustBanner() {
             </h2>
 
             <p className="mt-6 text-[15px] leading-relaxed text-gray-400">
-              Rebox Verify helps you check a device's IMEI status,
+              Rebox Verify helps you check a device&apos;s IMEI status,
               authenticity, and marketplace risk before sending
               payment or meeting a seller.
             </p>

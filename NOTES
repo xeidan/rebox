@@ -1,0 +1,689 @@
+# Rebox.ng — Master Product Roadmap
+
+Consolidated project status, completed work, remaining development, dependencies, and launch milestones.
+
+Rebox is intended to become more than a conventional electronics marketplace. The vision is to build a device-intelligence and trust platform combined with a marketplace for verified devices.
+
+The core differentiator is the technology behind each device: identifying it, matching its exact model and variant, gathering technical and verification evidence, assessing condition and trust, estimating value, and using that information to help buyers and sellers transact with greater confidence.
+
+The guiding principle is “Every Device Has a Story.”
+
+This roadmap combines the project work and source-file inventory already established. It is not yet a verified line-by-line audit of the uploaded ZIP, so features whose runtime behavior has not been demonstrated are marked accordingly.
+
+## 1. The destination: what Rebox must become
+
+[ITSALES NZ – Business Laptops, Monitors, Servers & IT Equipment](https://images.openai.com/static-rsc-4/25TmkE-n9f9PomjyYnZ_8imA1vBZW6PB7qwNfuPgR_gH-xE_WzOHoqSE8aA3oftVb7ynbSzyofYgiKGSJy23jrpVRFJZ0Yfo-ugqiz5QKHCI-Agzn4gQJZo2-tN1Uwv-bWZY2SESmx6PGp6tHUX23TQK9hNNcnyuL8kRwOxo6PM?purpose=inline)
+
+1\. Device intelligence
+
+Identify the device a user is using, determine its brand, model and variant, and retrieve structured specifications.
+
+[Technician repairing a smartphone at a workbench using a microscope screen and small tools in an electronics lab.](https://images.openai.com/static-rsc-4/jq-RK775my2fGl4oAIDiUGQXMgzQ_jgVmS3m60EQuJfRkWvJv-J6WgobMT8mU7r1pSjXiSGL4dCq5aQIWsYgdDgb4MldoWDY_a57HsEz_VS3e5zEfK3qnDwue7lDh5eohPzGsVaa5jmKsdnaptnXGxDo7K_jDOqzMDy12BzNKWs396zyQw5OBoJqpK6sWgCP?purpose=inline)
+
+2\. Verification and evidence
+
+Build a reliable record of what is known about a device, including supported IMEI checks, diagnostics, and verification history where available.
+
+[KREAM 중고/리퍼비쉬 폰 서비스 '더 폰(The Phone)' 이용 후기](https://images.openai.com/static-rsc-4/McJlu3YBd3lC-tQVdccui9G4_YmAS52vHYS1wVe-gsxagFg0OH52kxgxfjBBr02x9RfHm_q3cR5dNWr5EW1j6oDVfvFtjDvL5VPxMG-C2c0XOU3DaVUSYHZGleKG-5S7WKRHrVsGlmFnvif2zWNGz9sIwELLDR32PT9P4lP7n2w?purpose=inline)
+
+3\. Trust, condition and valuation
+
+Turn evidence into transparent trust assessments, condition information and defensible pricing estimates.
+
+[Certified Pre-Owned iPhones & Tech - Up to 60% Off | Plug](https://images.openai.com/static-rsc-4/zRojeNcsvkxHxIaWmgESSBmMMlLul6y-mwA387v4JSNNxTWpcdP7JzAesNzKt6X7bwH27JAhvhLvYE5SRPW9yGacrUL6AscEvNpzd7aF3YeYvVLmSF92QwT5GnY7ak9kfgdRX4f-wUsesTyFBmD6gkyegVpMwioyIpySoHQenD4?purpose=inline)
+
+4\. Verified-device marketplace
+
+Let buyers discover devices and assess their details, while sellers list products with structured specifications and supported verification information.
+
+[How We Grade | Mobile Depot Europe](https://images.openai.com/static-rsc-4/RU-8kBU-29ANSP-70mKUP0s94mrQ9gIX05g1KNVjxcrSOYQL-VyHGY3o7n3V3FEmFTViBi8jhd8bv0aV2L_xeOoYC0xaKGPmj5vtL4zlL_AmRPMbJamurls8JJnaNip7r-3td0XjIPjj4xfkvMHIYXCqK4pYFhJAwbmf-UYErHM?purpose=inline)
+
+5\. Proprietary technology and scalable operations
+
+Build the data, scoring, device records, APIs, verification processes and operational tools that can eventually distinguish Rebox from a basic buy-and-sell website.
+
+The marketplace is the customer-facing product. The device-intelligence layer is the long-term technological advantage. Both must work together.
+
+## 2. What has been achieved so far
+
+The status labels below distinguish known implementation work from functionality that still needs to be tested.
+
+Project foundation and technology stack
+
+Established
+
+- Next.js and React application using TypeScript.
+- Tailwind CSS for styling.
+- Supabase as the database and backend service.
+- Project configuration, application routes, reusable components and development tests are present in the source inventory.
+
+Branding and homepage
+
+Completed for planning
+
+- Rebox branding and visual direction.
+- Homepage and navigation work.
+- Marketplace category presentation.
+- Device-detection hero and image-generation work.
+
+The hero and image generation are treated as complete. They are not outstanding roadmap tasks.
+
+Marketplace page structure
+
+Files present
+
+- Product listing and category routes.
+- Product-detail route.
+- Product cards, category cards and product sliders.
+- Homepage sections for deals, best sellers, reviews, newsletter, trust, and FAQs.
+- Navigation, dropdowns and footer components.
+
+These files establish a substantial storefront structure. Complete purchasing and seller workflows have not been confirmed.
+
+Device identification foundation
+
+Previously demonstrated
+
+- A device-detection module and API routes.
+- `devices` and `device_identifiers` database structures have been worked on.
+- A `device_variants` table has been introduced.
+- A previous identification response successfully returned a detected iPhone 15 Pro variant with confidence `1`.
+- The device catalogue lookup uses identifiers to retrieve structured device information.
+
+This proves that an identification path has worked at least once; it does not establish coverage across all devices or production reliability.
+
+Device-intelligence modules
+
+Files present; integration unverified
+
+The source inventory includes modules for:
+
+- Trust scoring.
+- Device valuation.
+- Diagnostics.
+- Device passports.
+- Trust reports and trust-score cards.
+- Verification previews and intelligence badges.
+- Catalog reconciliation.
+- Evidence persistence.
+- Physical-device registration.
+- Identifier hashing and rate limiting.
+
+The presence of these modules is a useful foundation. Their accuracy, integration and user-facing completeness still need auditing.
+
+IMEI verification investigation
+
+Integration unverified
+
+An IMEI-information provider was investigated for technical information and blacklist status. The current connection, provider reliability, coverage and production readiness have not been confirmed.
+
+Automated testing foundation
+
+Test files present
+
+Tests exist for identifier hashing, physical-device registration and the device-identification route. Whether the entire suite passes and whether important failure cases are covered remain unknown.
+
+## Technical inventory — current source map
+
+This inventory records files present in the repository. File presence does not prove that a feature is complete or production-ready.
+
+### Application pages
+
+- `app/page.tsx` — homepage.
+- `app/products/page.tsx` — product listing.
+- `app/products/[category]/page.tsx` — category listing.
+- `app/product/[slug]/page.tsx` — product detail.
+- `app/layout.tsx` — root layout and metadata.
+- `app/globals.css` — global styling.
+
+### API routes
+
+- `app/api/devices/detect/route.ts` — catalogue/device detection endpoint.
+- `app/api/devices/identify/route.ts` — model lookup and IMEI identification flow.
+- `app/api/devices/image/route.ts` — device image endpoint.
+- The development IMEI test endpoint was removed on 28 October 2026.
+
+### UI components
+
+- `components/home/` — hero, categories, deals, best sellers, trust banner, reviews, FAQ and newsletter.
+- `components/layout/` — navbar, footer, menus and navigation.
+- `components/product/` — product card, category card, grid and slider.
+- `components/intelligence/` — device detection, device passport, trust report, trust-score card, verification preview and intelligence badges.
+
+### Device-intelligence and backend modules
+
+- `lib/rebox/device-detection.ts` — catalogue lookup.
+- `lib/rebox/catalog-reconciliation.ts` — reconcile provider results with catalogue entries.
+- `lib/rebox/providers/imei-info.ts` — external IMEI provider integration.
+- `lib/rebox/register-physical-device-with-evidence.ts` — combined physical-device registration and evidence RPC call.
+- `lib/rebox/register-physical-device.ts` — physical-device registration helper.
+- `lib/rebox/persist-device-evidence.ts` — evidence persistence helper.
+- `lib/rebox/identifier-hash.ts` — identifier hashing.
+- `lib/rebox/rate-limit.ts` — IMEI lookup rate limiting.
+- `lib/rebox/score.ts` — trust-score logic.
+- `lib/rebox/trust.ts` — trust-related logic.
+- `lib/rebox/diagnostics.ts` — diagnostics module.
+- `lib/rebox/passport.ts` — device passport module.
+- `lib/rebox/valutaion.ts` — valuation module; filename spelling should be reviewed before renaming.
+- `lib/supabase.ts` — public Supabase client.
+- `lib/supabase-admin.ts` — privileged server-side Supabase client.
+- `lib/utils.ts` — shared utilities.
+
+### Supporting files
+
+- `data/categories.ts` — category data.
+- `types/product.ts` — product type definitions.
+- `tests/device-identification-route.test.ts`
+- `tests/identifier-hash.test.ts`
+- `tests/register-physical-device.test.ts`
+- `tests/register-physical-device-with-evidence.test.ts`
+- `tests/mocks/server-only.ts`
+
+### Configuration and project guidance
+
+- `package.json`, `pnpm-lock.yaml`, `package-lock.json`, `pnpm-workspace.yaml`
+- `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `postcss.config.mjs`, `tailwind.config.js`, `vitest.config.ts`
+- `README.md`, `AGENTS.md`, `CLAUDE.md`, `NOTES`
+
+### Known verification status — Phase 1 audit, 28 October 2026
+
+- TypeScript: passed (`pnpm exec tsc --noEmit`).
+- ESLint: passed (`pnpm lint`).
+- Automated tests: 30/30 passed across 4 test files (`pnpm test`).
+- Production build: passed (`pnpm build`) after removal of the IMEI test endpoint.
+- Routes included in the successful build: `/`, `/api/devices/detect`, `/api/devices/identify`, `/api/devices/image`, `/products`, `/products/[category]`, `/product/[slug]`, and `/_not-found`.
+- Upstash connectivity check: HTTP 200, `PONG`.
+- IMEI.info connectivity check: HTTP 200 and provider status `Done` for a test-format IMEI. This does not verify the complete Rebox IMEI registration flow.
+- Three device-registration RPCs were verified to allow execution for `service_role` but not `anon` or `authenticated`.
+- Supabase RLS is enabled on all 18 inspected public tables. Only `products` and `product_variants` had policies in the inspected policy output.
+- Broad table-level grants to `anon` and `authenticated` were found on several marketplace tables. Review and least-privilege remediation are outstanding; do not assume grants alone bypass RLS.
+- No SQL migration files or `config.toml` were found by the repository searches performed. Migration reproducibility remains unverified.
+- The five files `lib/rebox/score.ts`, `lib/rebox/trust.ts`, `lib/rebox/valutaion.ts`, `lib/rebox/diagnostics.ts`, and `lib/rebox/passport.ts` were confirmed to be 0 bytes. A repository search found no direct imports or references to their expected implementations.
+- Browser-based device detection currently reports broad device category, operating system, and browser from `navigator.userAgent`; it does not identify an exact hardware model or call the catalogue API.
+- The hero animates through device names before settling on the detected category. Review this behavior so it does not imply an incorrect device was detected.
+- The hero's “See Your Device Story” link points to `/device`, but no `app/device` page was found in the inspected route inventory. Confirm and fix this destination.
+- Image issues observed in development: `/images/branding/rebox-logo.png` returned 404; the Supabase smartwatches category image returned HTTP 400; an image using `fill` lacked a `sizes` prop. These are separate from the IMEI provider connectivity check.
+- IMEI provider response parsing and connectivity were inspected, but the original Rebox identification failure has not been traced to a confirmed root cause.
+- Component-by-component behavior, all database relationships and constraints, full migration history, duplicate/unused code, and production-readiness remain only partially audited.
+
+## 3. The complete development pathway
+
+The roadmap is organized by dependencies, not merely by website pages. This prevents building features on top of an unreliable device catalogue or unverified backend.
+
+## 01
+
+Audit and stabilize the existing system
+
+Establish what genuinely works before adding more code.
+
+Start here
+
+## 02
+
+Harden the database and backend
+
+Secure and standardize the foundation all features depend on.
+
+## 03
+
+Complete device identification and verification
+
+Establish reliable device identity and evidence.
+
+## 04
+
+Build the Rebox Score and intelligence engine
+
+Convert reliable evidence into transparent assessments.
+
+## 05
+
+Connect the marketplace end to end
+
+Make discovery, listing, buying and selling work together.
+
+## 06
+
+Build accounts, administration and operations
+
+Support real users, transactions, disputes and internal control.
+
+## 07
+
+Quality assurance and launch
+
+Prove the entire product works securely and reliably.
+
+## Phase 1 — Audit and stabilize the existing codebase
+
+Objective: Avoid duplicating work and identify the actual remaining gaps.
+
+### Tasks
+
+- Inspect `package.json`, README, project configuration and environment-variable requirements.
+- Map all application pages, reusable components, API routes and service modules.
+- Trace each device API from request to database or external provider.
+- Run the production build, TypeScript checks, linting and automated tests.
+- Inspect existing database migrations, SQL scripts and expected Supabase tables.
+- Identify incomplete integrations, placeholder data, hardcoded results and dead code.
+- Check that frontend routes and backend endpoints agree.
+- Create a status register: completed, partially completed, broken, missing or untested.
+
+### Completion criteria
+
+A code-backed inventory that identifies the state of every major feature, with test results and confirmed defects.
+
+Why first: Without this audit, there is a risk of rebuilding working modules or treating unfinished modules as production-ready.
+
+## Phase 2 — Database and backend foundations
+
+Objective: Create a dependable data layer for the device-intelligence system and marketplace.
+
+### A. Database structure and integrity
+
+- Audit the existing Supabase schema and migrations.
+- Verify `devices`, `device_identifiers` and `device_variants`.
+- Confirm primary keys, foreign keys, unique constraints and indexes.
+- Define how brands, models, model numbers, variants, specifications and identifiers relate.
+- Ensure catalogue updates do not create duplicate devices or contradictory variants.
+- Define a repeatable process for adding, correcting and reconciling device data.
+- Verify development and production database schemas are consistent.
+
+### B. API and security
+
+- Validate every incoming request and reject malformed inputs.
+- Keep privileged Supabase credentials on the server.
+- Audit Row Level Security (RLS) and permissions.
+- Protect sensitive verification data and user records.
+- Apply appropriate rate limits to public and expensive verification endpoints.
+- Standardize API responses and error handling.
+- Add timeouts and safe failure behavior for external providers.
+- Ensure logs never expose secrets or unnecessary personal information.
+
+### C. Evidence and device records
+
+- Verify identifier hashing and normalization.
+- Verify evidence persistence and physical-device registration.
+- Define how evidence is timestamped and linked to the relevant device or verification attempt.
+- Prevent duplicate or inconsistent records when requests are retried.
+- Decide which fields are authoritative catalogue data and which are user- or provider-supplied.
+
+### Completion criteria
+
+The database has a clear, tested structure; API access is controlled; device records are consistent; and failures do not corrupt stored data.
+
+## Phase 3 — Device intelligence and verification
+
+Objective: Make Rebox reliably identify devices and communicate what is known about them.
+
+This is one of the most important parts of the product because the marketplace's trust claims depend on it.
+
+### A. Real-time device detection
+
+- Verify browser-based device detection works on supported browsers and operating systems.
+- Determine what can be identified from browser information and what cannot.
+- Match detected identifiers against the Rebox catalogue.
+- Handle unsupported devices, unknown models and incomplete browser data.
+- Avoid claiming exact identification when the evidence supports only a probable match.
+- Ensure the homepage does not rely on hardcoded device information to simulate detection.
+
+### B. Model and variant identification
+
+- Match manufacturer, model, model number and variant.
+- Handle regional model numbers and variant differences.
+- Support storage, connectivity and other meaningful variant attributes where available.
+- Define how confidence is calculated and interpreted.
+- Test exact matches, ambiguous matches, missing identifiers and no-match scenarios.
+- Improve the catalogue using a controlled ingestion and reconciliation process.
+
+### C. IMEI verification
+
+- Confirm the current IMEI provider and its supported checks.
+- Connect provider calls through secure server-side APIs.
+- Validate the format and handling of submitted IMEIs.
+- Confirm exactly what the provider can return, including blacklist status where supported.
+- Distinguish a successful provider response from a failed or unavailable lookup.
+- Handle timeouts, rate limits, invalid identifiers and provider outages.
+- Avoid storing sensitive identifiers unnecessarily.
+- Display the source and time of a verification result where appropriate.
+
+Important distinction: An IMEI lookup is not, by itself, proof that a device is genuine, has never been repaired, is in good physical condition, or is safe to buy. Rebox must distinguish what each check establishes.
+
+### D. Verification reports and device passport
+
+- Connect the device-detection result to the relevant device record.
+- Generate a structured report containing supported identity and verification evidence.
+- Explain which checks passed, failed, were inconclusive or were not performed.
+- Include timestamps and evidence sources where appropriate.
+- Verify that passport and report records are consistent with stored evidence.
+- Decide which information is public, private or visible only to the owner.
+
+### Completion criteria
+
+A user can identify a supported device, see a clear and appropriately qualified result, and understand the limits of the available evidence.
+
+## Phase 4 — Rebox Score, diagnostics and valuation
+
+Objective: Turn device data into useful intelligence that makes Rebox more than a listing website.
+
+### A. Rebox Score
+
+- Define exactly what the score measures.
+- Separate identity confidence, blacklist status, physical condition, ownership evidence and seller/listing trust where applicable.
+- Define the inputs, weighting, thresholds and missing-data rules.
+- Ensure unsupported checks do not silently count as passing.
+- Store enough information to reproduce or explain a historical score.
+- Show users the reasons behind the score rather than just a number.
+- Test edge cases and prevent inconsistent scores for equivalent evidence.
+
+A single score can be useful, but different dimensions should remain visible so a good condition assessment cannot conceal an unresolved identity or blacklist concern.
+
+### B. Device diagnostics and condition
+
+- Audit the existing diagnostics module.
+- Define which checks are possible automatically in a browser and which require user input, special hardware, an app or an in-person inspection.
+- Capture diagnostic evidence where technically supported.
+- Establish a condition-assessment model for physical damage, screen, battery and other relevant components.
+- Distinguish self-reported condition from independently verified condition.
+- Record the method, timestamp and limitations of each assessment.
+
+### C. Device valuation and pricing intelligence
+
+- Audit the existing valuation module and correct the `valutaion.ts` filename if appropriate.
+- Define valuation inputs such as model, variant, condition, age and market data.
+- Establish a reliable source and update schedule for pricing information.
+- Account for currency, regional market differences and data freshness.
+- Distinguish estimated value from actual market price or a guaranteed resale amount.
+- Test the estimate against real listing and transaction data as that data becomes available.
+
+### D. Fraud signals and verification history
+
+- Identify fraud indicators that can be supported by reliable evidence.
+- Keep risk signals distinct from proven fraud.
+- Record verification history and changes where justified.
+- Define how conflicting or outdated evidence affects the score.
+- Provide a review process for disputed or corrected results.
+
+### Completion criteria
+
+The Rebox intelligence layer produces traceable assessments, explains their limitations, and can be tested against known cases.
+
+## Phase 5 — Marketplace completion
+
+Objective: Turn the storefront into a functional marketplace that uses Rebox's intelligence.
+
+### A. Catalogue and discovery
+
+- Connect product listings to the authoritative database.
+- Complete category and product-detail data flows.
+- Implement and verify search.
+- Implement filtering and sorting.
+- Add pagination or another appropriate catalogue-loading strategy.
+- Display product availability and condition accurately.
+- Handle empty results, loading states, missing images and server errors.
+
+### B. Product detail and verification
+
+- Display model, variant, specifications, condition and seller information.
+- Show verification information relevant to that specific device.
+- Distinguish catalogue specifications from inspection results and seller claims.
+- Show the Rebox Score and explain its components where supported.
+- Provide a clear path to the relevant device report or passport.
+- Prevent a generic device verification result from being incorrectly presented as proof about every individual unit of that model.
+
+### C. Seller workflows
+
+- Create seller listing creation and editing.
+- Validate product data and listing requirements.
+- Associate each listing with the correct device model and variant.
+- Capture condition, pricing, availability and relevant evidence.
+- Support listing status changes, stock updates and removal.
+- Decide whether certain listing types require verification before publication.
+
+### D. Buyer and transaction workflows
+
+- Complete cart functionality if it is part of the chosen purchase model.
+- Implement checkout.
+- Integrate a suitable payment provider.
+- Create order records and track order status.
+- Handle successful, failed, pending and cancelled payments.
+- Define cancellation, refund, delivery and dispute workflows.
+- Ensure payment callbacks and retries cannot create duplicate orders or charges.
+
+### Completion criteria
+
+A buyer can discover a device, understand the listing and its verification status, and complete a supported transaction. A seller can create and manage a listing through the intended workflow.
+
+## Phase 6 — Accounts, administration and operations
+
+Objective: Make Rebox manageable as a real business, not just a public website.
+
+### A. Accounts and profiles
+
+- Implement or verify authentication.
+- Build user profiles and account settings.
+- Define buyer and seller permissions.
+- Associate listings, orders and verification records with the appropriate accounts.
+- Apply appropriate access controls to personal and transaction information.
+
+### B. Admin dashboard
+
+- Manage users and account status.
+- Review, approve, reject and remove listings.
+- Manage the device catalogue and variants.
+- Inspect verification reports and failed checks.
+- Resolve duplicate or conflicting catalogue records.
+- Manage orders, disputes and refunds where applicable.
+- Record important administrative actions in audit logs.
+
+### C. Business operations
+
+- Define support and complaint-handling processes.
+- Establish seller verification and listing moderation procedures.
+- Define dispute resolution and escalation.
+- Establish procedures for incorrect verification results and data corrections.
+- Create operational reporting for listings, sales, verification activity and failures.
+
+### Completion criteria
+
+The team can manage users, listings, catalogue data, verification cases and transactions through controlled workflows.
+
+## Phase 7 — Quality assurance and launch
+
+Objective: Prove the product is safe, usable and reliable before treating it as production-ready.
+
+### Engineering checks
+
+- Run a clean production build.
+- Run TypeScript checks, linting and automated tests.
+- Add integration tests for database and provider interactions.
+- Test device identification and verification failure cases.
+- Test authentication and authorization boundaries.
+- Test payment idempotency and transaction states where applicable.
+- Verify production environment variables and secrets.
+- Review Supabase RLS and storage access policies.
+
+### Product checks
+
+- Test responsive layouts across desktop, tablet and mobile.
+- Test keyboard navigation, accessibility and readable error messages.
+- Test page performance, image loading and catalogue loading.
+- Test the complete buyer journey.
+- Test the complete seller journey.
+- Test device identification through report generation.
+- Test empty states, network failures and provider outages.
+
+### Operations and deployment
+
+- Configure production monitoring and error reporting.
+- Establish database backup and recovery procedures.
+- Add deployment checks and a rollback process.
+- Verify domain, HTTPS, caching and production configuration.
+- Define incident handling and support ownership.
+- Run a controlled release and fix launch-blocking defects.
+
+### Completion criteria
+
+Critical user journeys pass in a production-like environment, critical security issues are resolved, and deployment and recovery procedures are documented.
+
+## 4. The dependencies that matter most
+
+These are the sequencing rules that should guide implementation:
+
+| Do this first                               | Because it unlocks                                    |
+| ------------------------------------------- | ----------------------------------------------------- |
+| Audit current code and tests                | Prevents duplicate work and identifies real defects   |
+| Stabilize database and APIs                 | Reliable catalogue, verification and marketplace data |
+| Complete device identification              | Trust reports, passports and device-specific listings |
+| Validate evidence and provider integrations | Meaningful Rebox Score and verification claims        |
+| Build the score and valuation rules         | Trust-aware product details and pricing intelligence  |
+| Connect marketplace transactions            | Functional buying and selling                         |
+| Add admin and operations                    | Safe management of real users and transactions        |
+| Complete end-to-end testing                 | A controlled production launch                        |
+
+The catalogue and verification layer should be built as shared infrastructure. Do not create separate, conflicting sources of device specifications for the homepage, product listings and verification reports.
+
+## 5. What should be considered out of scope for the immediate roadmap?
+
+The following should not distract from completing the core product:
+
+- Rebuilding the hero or repeating image-generation work already considered complete.
+- Adding more visual sections while critical data flows remain unverified.
+- Building elaborate AI features before the catalogue and evidence are reliable.
+- Claiming automated hardware diagnostics that browsers or available providers cannot actually perform.
+- Displaying a trust score without documented inputs and defensible rules.
+- Expanding into every electronics category before the initial device catalogue and verification process are dependable.
+
+A sensible starting scope is mobile phones first, with a data model that can later support laptops, tablets, gaming devices, smartwatches and other electronics.
+
+## 6. The recommended execution order
+
+## Roadmap tracker
+
+0 of 21 tasks checked
+
+### 1. Baseline audit
+
+First
+
+Inspect all source files and routes
+
+Run build, type checks, lint and tests
+
+Record working, partial, broken and untested features
+
+### 2. Backend and data integrity
+
+Next
+
+Audit Supabase schema and RLS
+
+Validate APIs, secrets and rate limits
+
+Standardize catalogue and evidence persistence
+
+### 3. Device identification
+
+Core
+
+Validate browser detection and model/variant matching
+
+Test IMEI provider and failure handling
+
+Complete verification reports and device passports
+
+### 4. Rebox intelligence
+
+Core
+
+Define transparent Rebox Score
+
+Validate diagnostics and condition assessments
+
+Implement evidence-based valuation and history
+
+### 5. Marketplace
+
+After core data
+
+Connect catalogue, search and filters
+
+Complete seller listings
+
+Complete checkout, payments and order states
+
+### 6. Accounts and operations
+
+Pre-launch
+
+Complete authentication and profiles
+
+Build admin and moderation workflows
+
+Add support, disputes and audit logs
+
+### 7. Launch readiness
+
+Final
+
+Pass end-to-end and security tests
+
+Verify monitoring, backups and deployment
+
+Release with operational checks
+
+Reset trackerCopy roadmap status
+
+Use this as a working checklist. Checking an item records your selection in this view; it does not verify the code or update the project itself.
+
+## 7. Definition of the first meaningful Rebox milestone
+
+Before expanding the scope, aim for one complete, demonstrable flow:
+
+1. A user visits Rebox and the browser attempts to identify their device.
+2. Rebox matches it against the device catalogue, returning a clear confidence result.
+3. The user can see the device's model, variant and supported specifications.
+4. Rebox runs the verification checks available for that device and explains any limitations.
+5. A device report presents the evidence, results and timestamps.
+6. The marketplace can display relevant device information without overstating verification.
+7. Automated tests cover successful identification, uncertain matches, invalid inputs and external-provider failures.
+
+This milestone connects the core technology to a visible customer benefit. It is more valuable than having many disconnected features.
+
+The immediate next action is the source-code audit. The existing archive inventory suggests that a meaningful foundation already exists. The next step is to verify each module, establish the exact completed-versus-incomplete status, and then execute the roadmap in dependency order.
+## Phase 1 audit outcome — 28 October 2026
+
+### Completed and verified
+- `pnpm test`: 30 tests passed across 4 test files.
+- `pnpm exec tsc --noEmit`: passed.
+- `pnpm lint`: passed.
+- `pnpm build`: passed after removal of the development IMEI test endpoint.
+- Upstash Redis connectivity returned HTTP 200 / PONG.
+- IMEI.info connectivity returned HTTP 200 and provider status Done for a test-format IMEI.
+- Effective execution permissions for the three physical-device registration/evidence RPCs were verified: service_role can execute; anon and authenticated cannot.
+- RLS was confirmed enabled on all 18 inspected public tables.
+- The main pages, API routes, source modules, database relationships, indexes, policies, grants, and RPC permissions were partially inventoried.
+
+### Confirmed defects and gaps
+- Empty backend modules: `lib/rebox/score.ts`, `trust.ts`, `valutaion.ts`, `diagnostics.ts`, `passport.ts`.
+- Empty UI modules: `components/intelligence/device-passport.tsx`, `intelligence-badges.tsx`, `trust-report.tsx`, `trust-score-card.tsx`, `verify-preview.tsx`.
+- Browser detection reports broad device type, OS, and browser; it does not identify the exact hardware model or query the catalogue.
+- The hero animates through device labels before settling on the detected category.
+- The homepage's `/device` destination has no matching page in the inspected route inventory.
+- Broad table-level grants to anon/authenticated were found on multiple marketplace tables. Review least-privilege grants and explicit access policies before launch.
+- Only `products` and `product_variants` appeared in the inspected RLS policy output. The other inspected tables had no listed policies.
+- No SQL migration files or `config.toml` were found in the repository paths searched. Reproducible schema deployment remains unverified.
+- `README.md` remains the default create-next-app documentation.
+- Development logs showed a missing `/images/branding/rebox-logo.png`, an HTTP 400 for the Supabase smartwatches category image, and a missing `sizes` prop on an image using `fill`.
+- IMEI provider connectivity and response shape were checked, but the original application-level identification failure has no confirmed root cause.
+
+### Partially complete / not yet verified
+- Full frontend-to-database trace for automatic device detection.
+- End-to-end IMEI identification, catalogue reconciliation, physical-device registration, and evidence persistence.
+- Functional behavior of trust score, valuation, diagnostics, and passport features.
+- Complete database schema, constraints, migration history, and query-plan/index audit.
+- Duplicate code, dead code, and unused dependencies.
+- Full feature-by-feature production-readiness review.
+
+### Phase 1 disposition
+AUDITED, NOT FULLY STABILIZED. Quality gates pass, but confirmed missing implementations and unresolved security, routing, asset, migration, and integration issues must be addressed before declaring Phase 1 complete or starting production launch work.

@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.0",
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.39.0",
     "framer-motion": "^12.43.0",
     "imei-info": "github:imei-info/imei-check-api-node",
     "lucide-react": "^1.16.0",

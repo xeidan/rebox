@@ -7,8 +7,8 @@ beforeAll(async () => {
   process.env.REBOX_IDENTIFIER_HMAC_SECRET ??=
     "test-only-secret-for-unit-tests";
 
-  const module = await import("@/lib/rebox/identifier-hash");
-  hashDeviceIdentifier = module.hashDeviceIdentifier;
+  const identifierHashModule = await import("@/lib/rebox/identifier-hash");
+  hashDeviceIdentifier = identifierHashModule.hashDeviceIdentifier;
 });
 
 describe("hashDeviceIdentifier", () => {

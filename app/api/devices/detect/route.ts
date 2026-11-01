@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error("Device detection error:", error);
+    console.error("Device detection failed.");
 
     return NextResponse.json(
       { error: "Unable to detect device" },

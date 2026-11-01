@@ -1,18 +1,7 @@
 import Image from "next/image";
 import type { Product } from "@/types/product";
 
-type ProductVariant = {
-  id: number;
-  product_id: number;
-  colour: string;
-  storage: string;
-  battery_health: number;
-  price: number;
-  stock: number;
-  image: string;
-  condition: string;
-  inspection_score: number;
-};
+
 
 
 const colourMap: Record<string, string> = {

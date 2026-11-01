@@ -356,7 +356,7 @@ export default function Navbar() {
               <Link href="/" className="shrink-0">
 
                 <Image
-                  src="/images/branding/rebox-logo.png"
+                  src="https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/branding/rebox-logo.png"
                   alt="Rebox"
                   width={125}
                   height={36}
@@ -445,7 +445,7 @@ export default function Navbar() {
               <Link href="/" className="shrink-0">
 
                 <Image
-                  src="/images/branding/rebox-logo.png"
+                  src="https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/branding/rebox-logo.png"
                   alt="Rebox"
                   width={125}
                   height={36}

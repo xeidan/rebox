@@ -3,14 +3,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { detectDevice } from "@/lib/rebox/device-detection";
 import { lookupImei } from "@/lib/rebox/providers/imei-info";
 import { reconcileDevice } from "@/lib/rebox/catalog-reconciliation";
-import { registerPhysicalDevice } from "@/lib/rebox/register-physical-device";
-import { persistDeviceEvidence } from "@/lib/rebox/persist-device-evidence";
+import { registerPhysicalDeviceWithEvidence } from "@/lib/rebox/register-physical-device-with-evidence";
 import { imeiLookupRateLimit } from "@/lib/rebox/rate-limit";
 
 export const runtime = "nodejs";
 
 const ALLOWED_TYPES = ["imei", "model_number", "model"] as const;
 type IdentifierType = (typeof ALLOWED_TYPES)[number];
+
+function hasValidImeiCheckDigit(imei: string): boolean {
+  if (!/^\d{15}$/.test(imei)) return false;
+
+  let sum = 0;
+  for (let i = 0; i < imei.length; i++) {
+    let digit = Number(imei[i]);
+    if (i % 2 === 1) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    sum += digit;
+  }
+
+  return sum % 10 === 0;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -79,6 +94,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!hasValidImeiCheckDigit(imei)) {
+      return NextResponse.json(
+        { error: "IMEI check digit is invalid." },
+        { status: 400 }
+      );
+    }
+
     // Use the client IP supplied by the trusted hosting platform.
     const forwardedFor = request.headers.get("x-forwarded-for");
     const clientIp = forwardedFor?.split(",")[0]?.trim();
@@ -117,24 +139,19 @@ export async function POST(request: NextRequest) {
     );
 
     // Register the physical device using its HMAC-hashed identifier.
-    const physicalDeviceId = await registerPhysicalDevice({
-      identifierType: "imei",
-      identifierValue: imei,
-      deviceId: catalogMatch.device?.id ?? null,
-      variantId: null,
-    });
-
-    // Persist identification evidence and any verification facts returned.
-    await persistDeviceEvidence({
-      physicalDeviceId,
-      provider: result.provider,
-      brand: result.device.brand,
-      model: result.device.model,
-      tac: result.device.tac,
-      specifications: result.device.specifications,
-      blacklistStatus: result.verification.blacklistStatus,
-      carrierLock: result.verification.carrierLock,
-    });
+const physicalDeviceId = await registerPhysicalDeviceWithEvidence({
+  identifierType: "imei",
+  identifierValue: imei,
+  deviceId: catalogMatch.device?.id ?? null,
+  variantId: null,
+  provider: result.provider,
+  brand: result.device.brand,
+  model: result.device.model,
+  tac: result.device.tac,
+  specifications: result.device.specifications,
+  blacklistStatus: result.verification.blacklistStatus,
+  carrierLock: result.verification.carrierLock,
+});
 
     return NextResponse.json({
       success: true,
@@ -155,9 +172,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error(
-      "Device identification failed. Request could not be completed."
-    );
+    console.error("Device identification failed.");
 
     // Fail closed if the rate-limit service or another dependency fails.
     return NextResponse.json(

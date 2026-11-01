@@ -1,3 +1,4 @@
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -10,6 +11,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "dahlqmbcazlotvybyykx.supabase.co",
+      },
+      {
+        protocol: "https",
+        hostname: "api.mobileapi.dev",
       },
     ],
   },

@@ -6,8 +6,7 @@ const mocks = vi.hoisted(() => ({
   detectDevice: vi.fn(),
   lookupImei: vi.fn(),
   reconcileDevice: vi.fn(),
-  registerPhysicalDevice: vi.fn(),
-  persistDeviceEvidence: vi.fn(),
+  registerPhysicalDeviceWithEvidence: vi.fn(),
   rateLimit: vi.fn(),
 }));
 
@@ -23,12 +22,9 @@ vi.mock("@/lib/rebox/catalog-reconciliation", () => ({
   reconcileDevice: mocks.reconcileDevice,
 }));
 
-vi.mock("@/lib/rebox/register-physical-device", () => ({
-  registerPhysicalDevice: mocks.registerPhysicalDevice,
-}));
-
-vi.mock("@/lib/rebox/persist-device-evidence", () => ({
-  persistDeviceEvidence: mocks.persistDeviceEvidence,
+vi.mock("@/lib/rebox/register-physical-device-with-evidence", () => ({
+  registerPhysicalDeviceWithEvidence:
+    mocks.registerPhysicalDeviceWithEvidence,
 }));
 
 vi.mock("@/lib/rebox/rate-limit", () => ({
@@ -119,8 +115,7 @@ describe("POST /api/devices/identify", () => {
       },
     });
 
-    mocks.registerPhysicalDevice.mockResolvedValue(123);
-    mocks.persistDeviceEvidence.mockResolvedValue(undefined);
+    mocks.registerPhysicalDeviceWithEvidence.mockResolvedValue(123);
   });
 
   it("returns 400 for invalid JSON", async () => {
@@ -197,8 +192,32 @@ describe("POST /api/devices/identify", () => {
     );
     expect(mocks.rateLimit).not.toHaveBeenCalled();
     expect(mocks.lookupImei).not.toHaveBeenCalled();
-    expect(mocks.registerPhysicalDevice).not.toHaveBeenCalled();
-    expect(mocks.persistDeviceEvidence).not.toHaveBeenCalled();
+    expect(
+      mocks.registerPhysicalDeviceWithEvidence
+    ).not.toHaveBeenCalled();
+  });
+
+  it("rejects an IMEI with an invalid check digit before rate limiting", async () => {
+    const response = await POST(
+      makeRequest({ type: "imei", value: "352973354630165" })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe("IMEI check digit is invalid.");
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
+    expect(mocks.lookupImei).not.toHaveBeenCalled();
+    expect(mocks.registerPhysicalDeviceWithEvidence).not.toHaveBeenCalled();
+  });
+
+  it("accepts an IMEI with a valid check digit", async () => {
+    const response = await POST(
+      makeRequest({ type: "imei", value: "490154203237518" })
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.rateLimit).toHaveBeenCalledWith("203.0.113.10");
+    expect(mocks.lookupImei).toHaveBeenCalledWith("490154203237518");
   });
 
   it("uses the Rebox catalogue for model-number lookups", async () => {
@@ -214,16 +233,20 @@ describe("POST /api/devices/identify", () => {
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.source).toBe("rebox_catalog");
+
     expect(mocks.detectDevice).toHaveBeenCalledWith({
       type: "model_number",
       value: "A3102",
     });
+
     expect(mocks.rateLimit).not.toHaveBeenCalled();
     expect(mocks.lookupImei).not.toHaveBeenCalled();
-    expect(mocks.registerPhysicalDevice).not.toHaveBeenCalled();
+    expect(
+      mocks.registerPhysicalDeviceWithEvidence
+    ).not.toHaveBeenCalled();
   });
 
-  it("identifies a valid IMEI and registers the physical device", async () => {
+  it("identifies an IMEI and atomically registers the device with its evidence", async () => {
     const imei = "352973354630164";
 
     const response = await POST(
@@ -244,15 +267,17 @@ describe("POST /api/devices/identify", () => {
       "iPhone 16 Plus"
     );
 
-    expect(mocks.registerPhysicalDevice).toHaveBeenCalledWith({
+    expect(
+      mocks.registerPhysicalDeviceWithEvidence
+    ).toHaveBeenCalledTimes(1);
+
+    expect(
+      mocks.registerPhysicalDeviceWithEvidence
+    ).toHaveBeenCalledWith({
       identifierType: "imei",
       identifierValue: imei,
       deviceId: 2,
       variantId: null,
-    });
-
-    expect(mocks.persistDeviceEvidence).toHaveBeenCalledWith({
-      physicalDeviceId: 123,
       provider: "imei.info",
       brand: "Apple",
       model: "iPhone 16 Plus",
@@ -277,11 +302,21 @@ describe("POST /api/devices/identify", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(mocks.registerPhysicalDevice).toHaveBeenCalledWith({
+
+    expect(
+      mocks.registerPhysicalDeviceWithEvidence
+    ).toHaveBeenCalledWith({
       identifierType: "imei",
       identifierValue: "352973354630164",
       deviceId: null,
       variantId: null,
+      provider: "imei.info",
+      brand: "Apple",
+      model: "iPhone 16 Plus",
+      tac: "35297335",
+      specifications: null,
+      blacklistStatus: null,
+      carrierLock: null,
     });
   });
 
@@ -306,7 +341,9 @@ describe("POST /api/devices/identify", () => {
     expect(body.error).toContain("Too many IMEI lookup requests");
     expect(response.headers.get("Retry-After")).toBeTruthy();
     expect(mocks.lookupImei).not.toHaveBeenCalled();
-    expect(mocks.registerPhysicalDevice).not.toHaveBeenCalled();
+    expect(
+      mocks.registerPhysicalDeviceWithEvidence
+    ).not.toHaveBeenCalled();
   });
 
   it("returns 503 when the client IP is unavailable", async () => {
@@ -344,12 +381,13 @@ describe("POST /api/devices/identify", () => {
       "Device identification is temporarily unavailable."
     );
     expect(JSON.stringify(body)).not.toContain("352973354630164");
-    expect(mocks.registerPhysicalDevice).not.toHaveBeenCalled();
-    expect(mocks.persistDeviceEvidence).not.toHaveBeenCalled();
+    expect(
+      mocks.registerPhysicalDeviceWithEvidence
+    ).not.toHaveBeenCalled();
   });
 
-  it("returns a safe error when registration fails", async () => {
-    mocks.registerPhysicalDevice.mockRejectedValue(
+  it("returns a safe error when combined registration or evidence persistence fails", async () => {
+    mocks.registerPhysicalDeviceWithEvidence.mockRejectedValue(
       new Error("Database constraint failure")
     );
 
@@ -366,7 +404,10 @@ describe("POST /api/devices/identify", () => {
     expect(body.error).toBe(
       "Device identification is temporarily unavailable."
     );
-    expect(mocks.persistDeviceEvidence).not.toHaveBeenCalled();
+    expect(
+      mocks.registerPhysicalDeviceWithEvidence
+    ).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(body)).not.toContain("352973354630164");
   });
 
   it("does not expose provider secrets or raw identifiers in responses", async () => {
