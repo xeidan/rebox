@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import DeviceDetection, {
   type DetectedDevice,
 } from "@/components/intelligence/device-detection";
@@ -63,7 +64,7 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
-export default function DevicePage() {
+function DevicePageContent() {
   const searchParams = useSearchParams();
 
   const [type, setType] = useState<"model" | "model_number">("model");
@@ -689,5 +690,13 @@ export default function DevicePage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function DevicePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <DevicePageContent />
+    </Suspense>
   );
 }
