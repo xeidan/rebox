@@ -89,9 +89,9 @@ export async function POST(request: NextRequest) {
         // Expose the complete identification result.
         detected: result.detected,
         status: result.status,
-        reason: result.reason ?? null,
+        reason: "reason" in result ? result.reason ?? null : null,
         variants: result.variants ?? [],
-        candidates: result.candidates ?? [],
+        candidates: "candidates" in result ? result.candidates ?? [] : [],
         confidenceLevel: result.confidenceLevel,
         matchMethod: result.matchMethod,
 

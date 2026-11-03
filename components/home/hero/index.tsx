@@ -3,10 +3,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import DeviceDetection, {
   type DetectedDevice,
 } from "@/components/intelligence/device-detection";
+import DeviceCatalogueRequestForm from "@/components/intelligence/device-catalogue-request-form";
 
 const SUPABASE_STORAGE_URL =
   "https://dahlqmbcazlotvybyykx.supabase.co/storage/v1/object/public/branding";
@@ -40,6 +42,30 @@ const ANIMATION_CATEGORIES: DeviceCategory[] = [
   "mac",
 ];
 
+type CatalogueCandidate = {
+  device: {
+    id: number | string;
+    brand: string;
+    model: string;
+    model_number?: string | null;
+    category?: string | null;
+    release_year?: number | null;
+    specifications?: Record<string, unknown> | null;
+  };
+  variants: Array<{
+    id: number | string;
+    model_number?: string | null;
+    region?: string | null;
+    storage?: string | null;
+    connectivity?: string | null;
+  }>;
+};
+
+type CatalogueSearchResponse = {
+  status: "candidates" | "unmatched";
+  candidates: CatalogueCandidate[];
+};
+
 function getDeviceCategory(
   device: DetectedDevice | null,
 ): DeviceCategory {
@@ -60,15 +86,156 @@ function getDeviceCategory(
   return "tablet";
 }
 
+function getMatchedDeviceId(
+  device: DetectedDevice | null,
+): number | string | null {
+  const match = device?.catalogueMatch;
+
+  if (
+    !match?.detected ||
+    match.status !== "matched" ||
+    !match.device
+  ) {
+    return null;
+  }
+
+  const id = match.device.id;
+
+  if (typeof id === "number" && Number.isFinite(id)) {
+    return id;
+  }
+
+  if (typeof id === "string" && id.trim()) {
+    return id;
+  }
+
+  return null;
+}
+
 export default function Hero() {
+  const router = useRouter();
+
   const [device, setDevice] = useState<DetectedDevice | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationIndex, setAnimationIndex] = useState(0);
 
-const handleDetected = useCallback((detected: DetectedDevice) => {
-  setDevice(detected);
-}, []);
-  
+  const [isCatalogueOpen, setIsCatalogueOpen] = useState(false);
+  const [catalogueQuery, setCatalogueQuery] = useState("");
+  const [catalogueCandidates, setCatalogueCandidates] = useState<
+    CatalogueCandidate[]
+  >([]);
+  const [isSearchingCatalogue, setIsSearchingCatalogue] = useState(false);
+  const [catalogueError, setCatalogueError] = useState<string | null>(null);
+
+  const handleDetected = useCallback((detected: DetectedDevice) => {
+    setDevice(detected);
+  }, []);
+
+  const matchedDeviceId = getMatchedDeviceId(device);
+
+  const openCatalogueSearch = useCallback(() => {
+    setCatalogueQuery("");
+    setCatalogueCandidates([]);
+    setCatalogueError(null);
+    setIsCatalogueOpen(true);
+  }, []);
+
+  const closeCatalogueSearch = useCallback(() => {
+    setIsCatalogueOpen(false);
+    setCatalogueError(null);
+  }, []);
+
+  const searchCatalogue = useCallback(async () => {
+    const query = catalogueQuery.trim();
+
+    if (!query) {
+      setCatalogueError("Enter a brand or device model to search.");
+      return;
+    }
+
+    setIsSearchingCatalogue(true);
+    setCatalogueError(null);
+    setCatalogueCandidates([]);
+
+    try {
+      const response = await fetch("/api/devices/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      const result: unknown = await response.json();
+
+      if (!response.ok) {
+        const message =
+          result &&
+          typeof result === "object" &&
+          "error" in result &&
+          typeof result.error === "string"
+            ? result.error
+            : "Catalogue search failed. Please try again.";
+
+        throw new Error(message);
+      }
+
+      if (
+        !result ||
+        typeof result !== "object" ||
+        !("candidates" in result) ||
+        !Array.isArray(result.candidates)
+      ) {
+        throw new Error("The catalogue returned an invalid response.");
+      }
+
+      const data = result as CatalogueSearchResponse;
+      const candidates = data.candidates.filter(
+        (candidate) =>
+          candidate &&
+          candidate.device &&
+          (typeof candidate.device.id === "number" ||
+            typeof candidate.device.id === "string") &&
+          typeof candidate.device.brand === "string" &&
+          typeof candidate.device.model === "string",
+      );
+
+      setCatalogueCandidates(candidates);
+
+      if (candidates.length === 0) {
+        setCatalogueError(
+          "No matching devices found. Try a different model name.",
+        );
+      }
+    } catch (error) {
+      setCatalogueError(
+        error instanceof Error
+          ? error.message
+          : "Unable to search the catalogue.",
+      );
+    } finally {
+      setIsSearchingCatalogue(false);
+    }
+  }, [catalogueQuery]);
+
+  const selectCatalogueDevice = useCallback(
+    (deviceId: number | string) => {
+      setIsCatalogueOpen(false);
+      router.push(`/product/${encodeURIComponent(String(deviceId))}`);
+    },
+    [router],
+  );
+
+  const handleSeeDeviceStory = useCallback(() => {
+    if (matchedDeviceId !== null) {
+      router.push(
+        `/product/${encodeURIComponent(String(matchedDeviceId))}`,
+      );
+      return;
+    }
+
+    openCatalogueSearch();
+  }, [matchedDeviceId, openCatalogueSearch, router]);
 
   useEffect(() => {
     if (
@@ -108,6 +275,22 @@ const handleDetected = useCallback((detected: DetectedDevice) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isCatalogueOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsCatalogueOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isCatalogueOpen]);
+
   const detectedCategory = getDeviceCategory(device);
 
   // Only the text changes during the animation.
@@ -121,7 +304,8 @@ const handleDetected = useCallback((detected: DetectedDevice) => {
     ? DEVICE_LABELS[displayedCategory]
     : device?.deviceName ?? "your device";
 
-  // Image selection is based exclusively on the actual detected device.
+  // The image uses the browser-detected device category,
+  // not an unconfirmed catalogue search result.
   const imageCategory = device ? detectedCategory : "tablet";
   const imageSrc = DEVICE_IMAGES[imageCategory];
 
@@ -161,55 +345,62 @@ const handleDetected = useCallback((detected: DetectedDevice) => {
               {deviceDetails}
             </p>
 
-            {device?.catalogueMatch?.detected && (
-              <div className="mt-4 inline-flex flex-col gap-2 rounded-xl border border-violet-100 bg-white/80 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span className="text-xs font-bold text-gray-800">
-                    Matched in Rebox catalogue
-                  </span>
-                  <span className="text-xs font-semibold text-violet-600">
-                    {Math.round(device.catalogueMatch.confidence * 100)}% confidence
-                  </span>
+            {device?.catalogueMatch?.detected &&
+              device.catalogueMatch.status === "matched" && (
+                <div className="mt-4 inline-flex flex-col gap-2 rounded-xl border border-violet-100 bg-white/80 px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                    <span className="text-xs font-bold text-gray-800">
+                      Matched in Rebox catalogue
+                    </span>
+                    <span className="text-xs font-semibold text-violet-600">
+                      {Math.round(
+                        device.catalogueMatch.confidence * 100,
+                      )}
+                      % confidence
+                    </span>
+                  </div>
+
+                  {device.catalogueMatch.variant && (
+                    <p className="text-xs text-gray-500">
+                      {[
+                        device.catalogueMatch.variant.model_number,
+                        device.catalogueMatch.variant.region,
+                        device.catalogueMatch.variant.storage,
+                        device.catalogueMatch.variant.connectivity,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  )}
                 </div>
-
-                {device.catalogueMatch.variant && (
-                  <p className="text-xs text-gray-500">
-                    {[
-                      device.catalogueMatch.variant.model_number,
-                      device.catalogueMatch.variant.region,
-                      device.catalogueMatch.variant.storage,
-                      device.catalogueMatch.variant.connectivity,
-                    ].filter(Boolean).join(" · ")}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {device?.model && !device?.catalogueMatch?.detected && (
-                <p className="mt-3 text-xs font-medium text-amber-700">
-                  {device.catalogueMatch?.status === "partial"
-                    ? "A possible catalogue match was found. Further identification is required."
-                    : device.catalogueMatch?.status === "ambiguous"
-                      ? "Multiple catalogue devices match this model. More information is required."
-                      : "Your browser reported a model, but Rebox could not confirm it in the catalogue."}
-                </p>
               )}
+
+            {device?.model && !matchedDeviceId && (
+              <p className="mt-3 text-xs font-medium text-amber-700">
+                {device.catalogueMatch?.status === "partial"
+                  ? "A possible catalogue match was found. Further identification is required."
+                  : device.catalogueMatch?.status === "ambiguous"
+                    ? "Multiple catalogue devices match this model. More information is required."
+                    : "Your browser reported a model, but Rebox could not confirm it in the catalogue."}
+              </p>
+            )}
 
             <p className="mt-6 max-w-lg text-base font-medium leading-7 text-gray-600">
               Rebox helps you understand your device, discover what it is
               worth, and see what comes next.
             </p>
 
+            <DeviceCatalogueRequestForm detectedModel={device?.model} />
+
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href={device?.model
-                  ? `/device?model=${encodeURIComponent(device.model)}`
-                  : "/device"}
+              <button
+                type="button"
+                onClick={handleSeeDeviceStory}
                 className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#111111] px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-violet-600"
               >
                 See Your Device Story
-              </Link>
+              </button>
 
               <Link
                 href="/products"
@@ -284,7 +475,9 @@ const handleDetected = useCallback((detected: DetectedDevice) => {
                 href="/device"
                 className="flex items-center justify-between gap-2 text-xs"
               >
-                <span className="text-gray-400">Rebox Intelligence</span>
+                <span className="text-gray-400">
+                  Rebox Intelligence
+                </span>
                 <span className="font-bold text-violet-600">
                   Explore <span aria-hidden="true">→</span>
                 </span>
@@ -324,12 +517,138 @@ const handleDetected = useCallback((detected: DetectedDevice) => {
         </div>
       </section>
 
+      {isCatalogueOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="catalogue-search-title"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              closeCatalogueSearch();
+            }
+          }}
+        >
+          <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">
+                  Rebox Device Intelligence
+                </p>
+
+                <h2
+                  id="catalogue-search-title"
+                  className="mt-2 text-2xl font-black tracking-tight text-gray-950"
+                >
+                  Find your device
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-gray-500">
+                  Your browser could not identify the exact model. Search
+                  the Rebox catalogue and select your device to view its
+                  story.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeCatalogueSearch}
+                aria-label="Close device search"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form
+              className="mt-6 flex flex-col gap-3 sm:flex-row"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void searchCatalogue();
+              }}
+            >
+              <input
+                autoFocus
+                value={catalogueQuery}
+                onChange={(event) =>
+                  setCatalogueQuery(event.target.value)
+                }
+                placeholder="e.g. Apple iPhone 15 Pro"
+                maxLength={120}
+                className="min-h-12 min-w-0 flex-1 rounded-xl border border-gray-200 px-4 text-sm text-gray-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+              />
+
+              <button
+                type="submit"
+                disabled={
+                  isSearchingCatalogue || !catalogueQuery.trim()
+                }
+                className="min-h-12 rounded-xl bg-[#111111] px-6 text-sm font-semibold text-white transition hover:bg-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSearchingCatalogue ? "Searching..." : "Search"}
+              </button>
+            </form>
+
+            {catalogueError && (
+              <p
+                role="status"
+                className="mt-4 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600"
+              >
+                {catalogueError}
+              </p>
+            )}
+
+            {catalogueCandidates.length > 0 && (
+              <div className="mt-5 max-h-[min(50vh,400px)] space-y-2 overflow-y-auto">
+                {catalogueCandidates.map(({ device: candidate }) => (
+                  <button
+                    key={candidate.id}
+                    type="button"
+                    onClick={() =>
+                      selectCatalogueDevice(candidate.id)
+                    }
+                    className="flex w-full items-center justify-between gap-4 rounded-xl border border-gray-100 p-4 text-left transition hover:border-violet-300 hover:bg-violet-50"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-bold text-gray-950">
+                        {candidate.brand} {candidate.model}
+                      </span>
+
+                      <span className="mt-1 block text-xs text-gray-500">
+                        {[
+                          candidate.release_year,
+                          candidate.category,
+                          candidate.model_number,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                    </span>
+
+                    <span className="shrink-0 text-sm font-bold text-violet-600">
+                      View story →
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <p className="mt-5 text-xs leading-5 text-gray-400">
+              Selecting a device confirms your catalogue choice. It does
+              not independently verify the physical device or its
+              ownership.
+            </p>
+          </div>
+        </div>
+      )}
+
       <style jsx global>{`
         @keyframes device-reveal {
           from {
             opacity: 0.45;
             transform: translateY(4px);
           }
+
           to {
             opacity: 1;
             transform: translateY(0);

@@ -282,6 +282,8 @@ export async function detectCurrentDevice(): Promise<DetectedDevice> {
   // Basic browser-based classification is independent of
   // exact hardware identification.
   const { model, platform } = await detectModel(uaData);
+  console.log("[REBOX] Browser model hint:", model);
+console.log("[REBOX] User agent data:", uaData);
 
   operatingSystem =
     normalizePlatform(platform) ||

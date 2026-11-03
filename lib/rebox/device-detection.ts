@@ -41,6 +41,14 @@ function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, "\\$&");
 }
 
+function normalizeDeviceName(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
 function unmatched(reason: string) {
   return {
     detected: false,
@@ -242,7 +250,6 @@ export async function detectDevice(input: DeviceDetectionInput) {
       .from("device_identifiers")
       .select(`
         id,
-        identifier_type,
         identifier_value,
         confidence,
         device:devices (
@@ -299,9 +306,11 @@ export async function detectDevice(input: DeviceDetectionInput) {
     }
   }
 
-  // 3. Exact catalogue model-name identification.
+   // 3. Exact catalogue model-name identification.
   if (input.type === "model") {
-    const { data: exact, error: exactError } = await supabaseAdmin
+    const normalizedInput = normalizeDeviceName(value);
+
+    const { data: devices, error: devicesError } = await supabaseAdmin
       .from("devices")
       .select(`
         id,
@@ -311,52 +320,55 @@ export async function detectDevice(input: DeviceDetectionInput) {
         category,
         release_year,
         specifications
-      `)
-      .ilike("model", safeValue)
-      .limit(2);
+      `);
 
-    if (exactError) {
+    if (devicesError) {
       throw new Error("Device catalogue lookup failed");
     }
 
-    if (exact && exact.length > 1) {
+    const matches = (devices ?? []).filter((device) => {
+      const normalizedBrand = normalizeDeviceName(device.brand ?? "");
+      const normalizedModel = normalizeDeviceName(device.model ?? "");
+
+      const fullName = `${normalizedBrand} ${normalizedModel}`.trim();
+
+      return (
+        normalizedModel === normalizedInput ||
+        fullName === normalizedInput
+      );
+    });
+
+    if (matches.length > 1) {
       return {
         ...unmatched("Multiple devices match this model."),
         status: "ambiguous",
-        candidates: exact,
+        candidates: matches,
       };
     }
 
-    if (exact?.length === 1) {
+    if (matches.length === 1) {
       return getDeviceResult(
-        exact[0],
-        0.95,
+        matches[0],
+        0.99,
         "exact_catalogue_model",
       );
     }
 
     // 4. Partial model-name search.
-    const { data: partial, error: partialError } = await supabaseAdmin
-      .from("devices")
-      .select(`
-        id,
-        brand,
-        model,
-        model_number,
-        category,
-        release_year,
-        specifications
-      `)
-      .ilike("model", `%${safeValue}%`)
-      .limit(2);
+    const partialMatches = (devices ?? []).filter((device) => {
+      const normalizedBrand = normalizeDeviceName(device.brand ?? "");
+      const normalizedModel = normalizeDeviceName(device.model ?? "");
+      const fullName = `${normalizedBrand} ${normalizedModel}`.trim();
 
-    if (partialError) {
-      throw new Error("Device catalogue lookup failed");
-    }
+      return (
+        normalizedModel.includes(normalizedInput) ||
+        fullName.includes(normalizedInput)
+      );
+    });
 
-    if (partial && partial.length > 0) {
+    if (partialMatches.length > 0) {
       const candidates = await Promise.all(
-        partial.map(async (device) => ({
+        partialMatches.slice(0, 10).map(async (device) => ({
           device,
           variants: await getVariants(Number(device.id)),
         })),
